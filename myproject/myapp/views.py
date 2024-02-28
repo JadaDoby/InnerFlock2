@@ -9,8 +9,10 @@ from .models import FirebaseModel
 def home(request):
     # Handle user input or other view-related logic
     if request.method == 'POST':
-        name = request.POST.get('name')
-        FirebaseModel.objects.create(name=name).save_to_firestore()
+        username = request.POST.get('username')
+        FirebaseModel.objects.create(username=username).save_to_firestore()
+        password = request.POST.get('password')
+        FirebaseModel.objects.create(password=password).save_to_firestore()
 
     # Retrieve data from Firestore using the model method
     firebase_data = FirebaseModel.get_data_from_firestore()

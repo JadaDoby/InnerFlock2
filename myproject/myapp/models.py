@@ -3,12 +3,14 @@ from django.db import models
 from firebase_admin import firestore
 
 class FirebaseModel(models.Model):
-    name = models.CharField(max_length=255)
+    username = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
 
     def save_to_firestore(self):
         db = firestore.client()
         users_ref = db.collection('users')
-        users_ref.add({'name': self.name})
+        users_ref.add({'username': self.username})
+        users_ref.add({'password': self.password})
 
     @classmethod
     def get_data_from_firestore(cls):
