@@ -51,7 +51,7 @@
             <button type="submit">Sign Up</button>
         </form>
 
-        <form method="post" action="{% url 'my_view' %}">
+        <form method="post" action="{% url 'home' %}">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">Sign Up</button>

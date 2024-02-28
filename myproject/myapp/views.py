@@ -3,10 +3,10 @@ from django.contrib.auth import authenticate, login
 from .forms import SignUpForm
 from .models import FirebaseModel
 
-def home(request):
-    return render(request, 'myapp/home.html', {})
+# def home(request):
+#     return render(request, 'myapp/home.html', {})
 
-def my_view(request):
+def home(request):
     # Handle user input or other view-related logic
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -17,7 +17,7 @@ def my_view(request):
 
     # Pass data to the template
     context = {'firebase_data': firebase_data}
-    return render(request, 'home.html', context)
+    return render(request, 'myapp/home.html', context)
         
 def signup(request):
     if request.method == 'POST':
