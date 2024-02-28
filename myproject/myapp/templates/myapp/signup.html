@@ -50,6 +50,18 @@
             <input type="password" id="password" name="password" required>
             <button type="submit">Sign Up</button>
         </form>
+
+        <form method="post" action="{% url 'my_view' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+        </form>
+    
+        <!-- Display existing data from Firestore -->
+        {% for data in firebase_data %}
+            <p>{{ data.name }}</p>
+        {% endfor %}
+        
     </main>
 </body>
 </html>

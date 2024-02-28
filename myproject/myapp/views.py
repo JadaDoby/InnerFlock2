@@ -1,10 +1,24 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from .forms import SignUpForm
+from .models import FirebaseModel
 
 def home(request):
     return render(request, 'myapp/home.html', {})
 
+def my_view(request):
+    # Handle user input or other view-related logic
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        FirebaseModel.objects.create(name=name).save_to_firestore()
+
+    # Retrieve data from Firestore using the model method
+    firebase_data = FirebaseModel.get_data_from_firestore()
+
+    # Pass data to the template
+    context = {'firebase_data': firebase_data}
+    return render(request, 'home.html', context)
+        
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
