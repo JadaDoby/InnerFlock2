@@ -133,3 +133,19 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "myapp/static",
 ]
+
+import firebase_admin
+from firebase_admin import credentials
+import os
+
+print("Initializing Firebase...")
+# Assuming the Django project is in 'InnerFlock2' and 'myproject' contains 'settings.py'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Path to your Firebase service account key file
+service_account_path = os.path.join(BASE_DIR, 'serviceAccountKey.json')
+cred = credentials.Certificate(service_account_path)
+print(f"Using service account key: {cred}")
+# Initialize Firebase with the service account key
+firebase_admin.initialize_app(cred)
+print("Firebase initialization complete.")
