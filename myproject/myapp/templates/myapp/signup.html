@@ -10,26 +10,46 @@
     <title>InnerFlock Sign Up</title>
     <!-- Link to your CSS file -->
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    <style>
+        /* Style for the navbar */
+        header {
+            background-color: #333;
+            padding: 10px;
+            color: white;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
 </head>
 <body>
     <header>
+       
+
         <h1>Where Opportunities Turn Into Reality</h1>
     </header>
     <main>
-        <h2>Sign In for InnerFlock</h2>
+        <h2>Sign Up for InnerFlock</h2>
         
         <!-- Add your sign-up form or content here -->
         <!-- For example, a simple form with username and password fields -->
-        <form method="post" action="{% url 'home' %}">
+        <form method="post" action="{% url 'signup' %}">
             {% csrf_token %}
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
-            <button type="submit"> Login</button>
+            <button type="submit">Sign Up</button>
         </form>
-        <p style="text-align: center;">Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
-        <p style="text-align: center;">Join our group chat <a href="{% url 'groupchat' %}">here</a></p>
-        <p style="text-align: center;">Join our private chat <a href="{% url 'privatechat' %}">Join Private Chat</a></p>
     </main>
 </body>
+</html>

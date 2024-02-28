@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Chat</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            align-items: center;
+        }
+    
+        #user-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+    
+        #username {
+            padding: 8px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            color: #000;  /* Adjusted to black text */
+        }
+    
+        #add-user-btn {
+            padding: 8px 16px;
+            background-color: #fff;  /* Adjusted to white background */
+            color: #000;  /* Adjusted to black text */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        #chat-containers {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            width: 100%;
+            margin-top: 20px;
+        }
+    
+        .chat-container {
+            background-color: #000;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin: 10px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+    
+        .chat-header {
+            background-color: #fff;  /* Adjusted to white background */
+            color: #000;  /* Adjusted to black text */
+            padding: 10px;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+    
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+    
+        .message-input {
+            padding: 10px;
+            border: none;
+            border-top: 1px solid #ddd;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            color: #fff;
+            background-color: #000;
+            outline: none;
+        }
+    </style>
+    
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div class="chat-header">
+        <h2>Private Chat</h2>
+        <p>Participants: User1, User2</p>
+    </div>
+    <div class="chat-messages">
+        <!-- Messages will be displayed here -->
+        <div class="message">User1: Hi there!</div>
+        <div class="message">User2: Hello!</div>
+        <!-- Add more messages as needed -->
+    </div>
+    <input type="text" class="message-input" placeholder="Type your message...">
+</div>
+
+</body>
+</html>

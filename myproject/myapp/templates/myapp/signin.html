@@ -20,7 +20,7 @@
         
         <!-- Add your sign-up form or content here -->
         <!-- For example, a simple form with username and password fields -->
-        <form method="post" action="{% url 'home' %}">
+        <form method="post" action="{% url 'signin' %}">
             {% csrf_token %}
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
@@ -28,8 +28,6 @@
             <input type="password" id="password" name="password" required>
             <button type="submit"> Login</button>
         </form>
-        <p style="text-align: center;">Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
-        <p style="text-align: center;">Join our group chat <a href="{% url 'groupchat' %}">here</a></p>
-        <p style="text-align: center;">Join our private chat <a href="{% url 'privatechat' %}">Join Private Chat</a></p>
+        <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
     </main>
 </body>
