@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.http import HttpResponse
 from .forms import SignUpForm
 from .models import FirebaseModel
 
@@ -23,15 +24,22 @@ def home(request):
         
 def signup(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('groupchat')  # Redirect to the group chat page upon successful signup and login
-    else:
-        form = SignUpForm()
+        # Directly retrieve data from the request
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        school = request.POST.get('school')  # Assuming you have a school input in your form
+        password = request.POST.get('password')
 
-    return render(request, 'myapp/signup.html', {'form': form})
+        # Attempt to create a new FirebaseModel instance and save to Firestore
+        try:
+            firebase_user = FirebaseModel(email=email, username=username, school=school, password=password)
+            firebase_user.save_to_firestore()
+            return HttpResponse("User registered successfully.")
+        except Exception as e:
+            return HttpResponse(f"Failed to register user: {e}")
+
+    # If not a POST request, or if there was an error, display the signup form again
+    return render(request, 'myapp/signup.html')
 
 def search(request):
     return render(request, 'myapp/search.html', {})

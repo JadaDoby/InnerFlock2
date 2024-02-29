@@ -3,7 +3,7 @@ from myapp import views  # Import views from the same directory
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('signup' , views.signup, name='signup'),
+    path('signup/' , views.signup, name='signup'),
     path('search' , views.search, name='search'),
     path('groupchat/' , views.groupchat_view, name='groupchat'),   
     path('signin/', views.signin, name='signin'),

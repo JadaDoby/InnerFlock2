@@ -1,67 +1,91 @@
-<!-- myapp/templates/myapp/signup.html -->
-
 <!DOCTYPE html>
 {% load static %}
 
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InnerFlock Sign Up</title>
-    <!-- Link to your CSS file -->
-    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'myapp/css/styles.css' %}"
+    />
     <style>
-        /* Style for the navbar */
-        header {
-            background-color: #333;
-            padding: 10px;
-            color: white;
-            text-align: center;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background-color: #333;
+        color: white;
+        padding: 10px 0;
+        text-align: center;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      label {
+        margin-bottom: 5px;
+      }
+      input[type="text"],
+      input[type="password"],
+      input[type="email"] {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      button[type="submit"] {
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-       
-
-        <h1>Where Opportunities Turn Into Reality</h1>
+      <h1>Where Opportunities Turn Into Reality</h1>
     </header>
-    <main>
-        <h2>Sign Up for InnerFlock</h2>
-        
-        <!-- Add your sign-up form or content here -->
-        <!-- For example, a simple form with username and password fields -->
-        <form method="post" action="{% url 'signup' %}">
-            {% csrf_token %}
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Sign Up</button>
-        </form>
+    <main class="container">
+      <h2>Sign Up for InnerFlock</h2>
+      <form method="post" action="{% url 'signup' %}">
+        {% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
 
-        <form method="post" action="{% url 'home' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Sign Up</button>
-        </form>
-    
-        <!-- Display existing data from Firestore -->
-        {% for data in firebase_data %}
-            <p>{{ data.name }}</p>
-        {% endfor %}
-        
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+
+        <label for="school">School:</label>
+        <input type="text" id="school" name="school" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Sign Up</button>
+
+        {% if firebase_data %}
+        <h2>Recent Firebase Data:</h2>
+        <ul>
+          {% for data in firebase_data %}
+          <li>{{ data.username }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </form>
     </main>
-</body>
+  </body>
 </html>

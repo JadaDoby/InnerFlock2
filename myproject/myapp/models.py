@@ -1,16 +1,26 @@
 # myapp/models.py
 from django.db import models
+from django.contrib.auth.hashers import make_password 
 from firebase_admin import firestore
 
 class FirebaseModel(models.Model):
+    email = models.EmailField(max_length=255)
     username = models.CharField(max_length=255)
+    school = models.CharField(max_length=255, blank=True)  # Assuming school can be optional
     password = models.CharField(max_length=255)
 
+
     def save_to_firestore(self):
+        
+        hashed_password = make_password(self.password)
         db = firestore.client()
         users_ref = db.collection('users')
-        users_ref.add({'username': self.username})
-        users_ref.add({'password': self.password})
+        users_ref.add({
+            'email': self.email,
+            'username': self.username,
+            'school': self.school,
+            'password': hashed_password,  # Store hashed password
+        })
 
     @classmethod
     def get_data_from_firestore(cls):
@@ -18,5 +28,13 @@ class FirebaseModel(models.Model):
         users_ref = db.collection('users')
         data = []
         for doc in users_ref.stream():
-            data.append(doc.to_dict())
+            doc_data = doc.to_dict()
+            # Note: Passwords stored are hashed, never send them back to the client or display them
+            # Consider excluding 'password' from the returned data if it's not needed for a specific operation
+            data.append({
+                'email': doc_data.get('email'),
+                'username': doc_data.get('username'),
+                'school': doc_data.get('school'),
+                # 'password': doc_data.get('password'),  # Generally, you shouldn't retrieve or send the password
+            })
         return data
