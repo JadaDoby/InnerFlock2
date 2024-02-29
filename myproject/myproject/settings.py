@@ -75,9 +75,25 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+import firebase_admin
+from firebase_admin import credentials
+import os
+
+print("Initializing Firebase...")
+# Assuming the Django project is in 'InnerFlock2' and 'myproject' contains 'settings.py'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Path to your Firebase service account key file
+service_account_path = os.path.join(BASE_DIR, 'serviceAccountKey.json')
+cred = credentials.Certificate(service_account_path)
+print(f"Using service account key: {cred}")
+# Initialize Firebase with the service account key
+firebase_admin.initialize_app(cred)
+print("Firebase initialization complete.")
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.dummy',
     }
 }
 
@@ -128,23 +144,8 @@ LOGIN_URL = 'http://127.0.0.1:8000/'
 LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/signup'
 
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "myapp/static",
-]
+# STATIC_URL = '/static/'
+# STATICFILES_DIRS = [
+#     BASE_DIR / "myapp/static",
+# ]
 
-import firebase_admin
-from firebase_admin import credentials
-import os
-
-print("Initializing Firebase...")
-# Assuming the Django project is in 'InnerFlock2' and 'myproject' contains 'settings.py'
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Path to your Firebase service account key file
-service_account_path = os.path.join(BASE_DIR, 'serviceAccountKey.json')
-cred = credentials.Certificate(service_account_path)
-print(f"Using service account key: {cred}")
-# Initialize Firebase with the service account key
-firebase_admin.initialize_app(cred)
-print("Firebase initialization complete.")
