@@ -85,6 +85,13 @@ DATABASES = {
 }
 
 
+AUTHENTICATION_BACKENDS = [
+    'myapp.backends.FirebaseAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',  # This is Django's default backend
+]
+
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -119,7 +126,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "myapp/static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -131,23 +142,5 @@ LOGIN_URL = 'http://127.0.0.1:8000/'
 LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/signup'
 
 
-# STATIC_URL = '/static/'
-# STATICFILES_DIRS = [
-#     BASE_DIR / "myapp/static",
-# ]
 
-# import firebase_admin
-# from firebase_admin import credentials
-# import os
 
-# print("Initializing Firebase...")
-# # Assuming the Django project is in 'InnerFlock2' and 'myproject' contains 'settings.py'
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# # Path to your Firebase service account key file
-# service_account_path = os.path.join(BASE_DIR, 'serviceAccountKey.json')
-# cred = credentials.Certificate(service_account_path)
-# print(f"Using service account key: {cred}")
-# # Initialize Firebase with the service account key
-# firebase_admin.initialize_app(cred)
-# print("Firebase initialization complete.")
