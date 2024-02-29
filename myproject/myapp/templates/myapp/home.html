@@ -1,66 +1,96 @@
-<!-- myapp/templates/myapp/signup.html -->
-
 <!DOCTYPE html>
 {% load static %}
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>InnerFlock Sign Up</title>
-    <!-- Link to your CSS file -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'myapp/css/styles.css' %}"
-    />
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnerFlock Sign In</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    
+    <!-- Firebase JS SDK (compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script>
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body>
     <header>
-      <h1>Where Opportunities Turn Into Reality</h1>
+        <h1>Welcome Back to InnerFlock</h1>
     </header>
     <main>
-      <h2>Sign In for InnerFlock</h2>
-
-      <!-- Add your sign-up form or content here -->
-      <!-- For example, a simple form with username and password fields -->
-      <form method="post" action="{% url 'home' %}">
-        {% csrf_token %}
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required />
-        <label for="password">Password:</label>
-        <input type="text" id="password" name="password" required />
-        <button type="submit">Login</button>
-
-<!-- 
-        {% csrf_token %}
-        <label for="name">Enter your name:</label>
-        <input type="text" id="name" name="name" required />
-        <button type="submit">Submit</button> -->
-
-      </form>
-
-      <p style="text-align: center">
-        Don't have an account? <a href="{% url 'signup' %}">Sign up here</a>
-      </p>
-      <p style="text-align: center">
-        Join our group chat <a href="{% url 'groupchat' %}">here</a>
-      </p>
-      <p style="text-align: center">
-        Join our private chat
-        <a href="{% url 'privatechat' %}">Join Private Chat</a>
-      </p>
-
-      <!-- Display Firebase data, if any -->
-      {% if firebase_data %}
-      <h2>Recent Firebase Data:</h2>
-      <ul>
-        {% for data in firebase_data %}
-        <li>{{ data.username }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-      
+        <h2>Sign In</h2>
+        <form id="signin-form">
+            {% csrf_token %}
+            <div>
+                <label for="username">Username (Email):</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <button type="submit">Login</button>
+            </div>
+            <div id="error-message"></div>
+        </form>
+        
+        <p style="text-align: center">
+            Don't have an account? <a href="{% url 'signup' %}">Sign up here</a>
+        </p>
+        <p style="text-align: center">
+            Join our group chat <a href="{% url 'groupchat' %}">here</a>
+        </p>
+        <p style="text-align: center">
+            Join our private chat <a href="{% url 'privatechat' %}">Join Private Chat</a>
+        </p>
     </main>
-  </body>
+
+    <script>
+      document.getElementById("signin-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const email = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            return userCredential.user.getIdToken().then((idToken) => {
+              fetch("/verify-token/", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify({ token: idToken }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  window.location.href = "/homepage/";
+                } else {
+                  document.getElementById("error-message").textContent = "Authentication failed. " + data.message;
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            document.getElementById("error-message").textContent = error.message;
+          });
+      });
+    </script>
+</body>
 </html>

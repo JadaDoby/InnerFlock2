@@ -1,67 +1,90 @@
-<!-- myapp/templates/myapp/signup.html -->
-
 <!DOCTYPE html>
 {% load static %}
 
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InnerFlock Sign Up</title>
-    <!-- Link to your CSS file -->
-    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
-    <style>
-        /* Style for the navbar */
-        header {
-            background-color: #333;
-            padding: 10px;
-            color: white;
-            text-align: center;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-    </style>
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'myapp/css/styles.css' %}"
+    />
+    <!-- Add your styles here -->
+  </head>
+  <body>
     <header>
-       
-
-        <h1>Where Opportunities Turn Into Reality</h1>
+      <h1>Where Opportunities Turn Into Reality</h1>
     </header>
-    <main>
-        <h2>Sign Up for InnerFlock</h2>
-        
-        <!-- Add your sign-up form or content here -->
-        <!-- For example, a simple form with username and password fields -->
-        <form method="post" action="{% url 'signup' %}">
-            {% csrf_token %}
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Sign Up</button>
-        </form>
+    <main class="container">
+      <h2>Sign Up for InnerFlock</h2>
+      <form id="signup-form">
+        {% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
 
-        <form method="post" action="{% url 'home' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Sign Up</button>
-        </form>
-    
-        <!-- Display existing data from Firestore -->
-        {% for data in firebase_data %}
-            <p>{{ data.name }}</p>
-        {% endfor %}
-        
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+
+        <label for="school">School:</label>
+        <input type="text" id="school" name="school" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Sign Up</button>
+      </form>
+      <div id="error-message"></div>
+      <!-- Removed the server-side firebase_data part since we're doing this client-side -->
     </main>
-</body>
+
+    <!-- Include Firebase JS SDK (compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script>
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      document
+        .getElementById("signup-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          // Username and School can be used to store additional information in Firebase or your own database
+
+          firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+              // Sign-up successful.
+              // Here you might want to save the username and school to your Firestore database
+              // Redirect the user to another page or show a success message
+              console.log("User created successfully with email: ", email);
+              window.location.href = "/homepage/"; // Adjust this as needed
+            })
+            .catch((error) => {
+              // Handle Errors here.
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              // Display the error message to the user
+              document.getElementById("error-message").textContent =
+                errorMessage;
+            });
+        });
+    </script>
+  </body>
 </html>
