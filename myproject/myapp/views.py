@@ -1,26 +1,30 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.contrib.auth.hashers import make_password
 from .forms import SignUpForm
 from .models import FirebaseModel
+from .models import authenticate_with_firestore
 
 # def home(request):
 #     return render(request, 'myapp/home.html', {})
+@login_required
+def homepage(request):
+    return render(request, 'myapp/homepage.html')
 
 def home(request):
-    # Handle user input or other view-related logic
     if request.method == 'POST':
-        username = request.POST.get('username')
-        FirebaseModel.objects.create(username=username).save_to_firestore()
-        password = request.POST.get('password')
-        FirebaseModel.objects.create(password=password).save_to_firestore()
-
-    # Retrieve data from Firestore using the model method
-    firebase_data = FirebaseModel.get_data_from_firestore()
-
-    # Pass data to the template
-    context = {'firebase_data': firebase_data}
-    return render(request, 'myapp/home.html', context)
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('homepage')  # Redirect to a "homepage" view upon success
+        else:
+            # Invalid login - handle as needed
+            return render(request, 'myapp/home.html', {'error': 'Invalid username or password.'})
+    return render(request, 'myapp/home.html')
         
 def signup(request):
     if request.method == 'POST':
@@ -30,9 +34,11 @@ def signup(request):
         school = request.POST.get('school')  # Assuming you have a school input in your form
         password = request.POST.get('password')
 
+        hashed_password = make_password(password)
+        
         # Attempt to create a new FirebaseModel instance and save to Firestore
         try:
-            firebase_user = FirebaseModel(email=email, username=username, school=school, password=password)
+            firebase_user = FirebaseModel(email=email, username=username, school=school, password=hashed_password)
             firebase_user.save_to_firestore()
             return HttpResponse("User registered successfully.")
         except Exception as e:
@@ -51,15 +57,14 @@ def signin(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('groupchat')  # Redirect to the group chat page upon successful login
+        user_data = authenticate_with_firestore(username, password)
+        if user_data:
+            # User authenticated successfully
+            # Implement your session handling or redirect logic here
+            return redirect('homepage')
         else:
-            # Handle invalid login (display error message, etc.)
-            pass
-
-    return render(request, 'myapp/signin.html', {})
+            # Authentication failed
+            return render(request, 'myapp/signin.html', {'error': 'Invalid username or password.'})
 
 def groupchat_view(request):
     return render(request, 'myapp/groupchat.html', {})

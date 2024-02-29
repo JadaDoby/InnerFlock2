@@ -31,14 +31,11 @@
         <label for="password">Password:</label>
         <input type="text" id="password" name="password" required />
         <button type="submit">Login</button>
-
-<!-- 
-        {% csrf_token %}
-        <label for="name">Enter your name:</label>
-        <input type="text" id="name" name="name" required />
-        <button type="submit">Submit</button> -->
-
       </form>
+
+      {% if error %}
+      <p>{{ error }}</p>
+      {% endif %}
 
       <p style="text-align: center">
         Don't have an account? <a href="{% url 'signup' %}">Sign up here</a>
@@ -50,17 +47,6 @@
         Join our private chat
         <a href="{% url 'privatechat' %}">Join Private Chat</a>
       </p>
-
-      <!-- Display Firebase data, if any -->
-      {% if firebase_data %}
-      <h2>Recent Firebase Data:</h2>
-      <ul>
-        {% for data in firebase_data %}
-        <li>{{ data.username }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-      
     </main>
   </body>
 </html>

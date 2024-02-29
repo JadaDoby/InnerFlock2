@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password 
 from firebase_admin import firestore
+from django.contrib.auth.hashers import check_password
 
 class FirebaseModel(models.Model):
     email = models.EmailField(max_length=255)
@@ -38,3 +39,19 @@ class FirebaseModel(models.Model):
                 # 'password': doc_data.get('password'),  # Generally, you shouldn't retrieve or send the password
             })
         return data
+
+
+def authenticate_with_firestore(username, password):
+    db = firestore.client()
+    users_ref = db.collection('users')
+    query = users_ref.where('username', '==', username).limit(1)
+    results = list(query.stream())
+
+    if not results:
+        return None  # User not found
+
+    user_data = results[0].to_dict()
+    if check_password(password, user_data['password']):
+        return user_data  # Password matches, return user data
+    else:
+        return None  # Password does not match
