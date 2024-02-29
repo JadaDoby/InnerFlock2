@@ -15,17 +15,21 @@ def homepage(request):
 
 def home(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('homepage')  # Redirect to a "homepage" view upon success
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user_data = authenticate_with_firestore(username, password)
+        if user_data:
+            # Redirect to homepage if authentication is successful
+            return redirect('homepage')
         else:
-            # Invalid login - handle as needed
-            return render(request, 'myapp/home.html', {'error': 'Invalid username or password.'})
-    return render(request, 'myapp/home.html')
-        
+            return render(request, 'myapp/signup.html', {'error': 'Invalid username or password.'})
+    else:
+        return render(request, 'myapp/home.html')
+
+def homepage_view(request):
+    # Ensure the user is logged in, if required
+    return render(request, 'myapp/homepage.html')
+
 def signup(request):
     if request.method == 'POST':
         # Directly retrieve data from the request
@@ -52,19 +56,6 @@ def search(request):
 
 def groupchat(request):
     return redirect('groupchat_view')  # Assuming 'groupchat_view' is the name of your view function
-
-def signin(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user_data = authenticate_with_firestore(username, password)
-        if user_data:
-            # User authenticated successfully
-            # Implement your session handling or redirect logic here
-            return redirect('homepage')
-        else:
-            # Authentication failed
-            return render(request, 'myapp/signin.html', {'error': 'Invalid username or password.'})
 
 def groupchat_view(request):
     return render(request, 'myapp/groupchat.html', {})

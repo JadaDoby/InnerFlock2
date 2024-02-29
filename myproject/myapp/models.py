@@ -44,7 +44,7 @@ class FirebaseModel(models.Model):
 def authenticate_with_firestore(username, password):
     db = firestore.client()
     users_ref = db.collection('users')
-    query = users_ref.where('username', '==', username).limit(1)
+    query = users_ref.where(field_path='username', op_string='==', value=username)
     results = list(query.stream())
 
     if not results:
