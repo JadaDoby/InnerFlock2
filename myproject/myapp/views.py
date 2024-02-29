@@ -15,16 +15,16 @@ def homepage(request):
 
 def home(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user_data = authenticate_with_firestore(username, password)
-        if user_data:
-            # Redirect to homepage if authentication is successful
-            return redirect('homepage')
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('homepage')  # Redirect to the group chat page upon successful login
         else:
-            return render(request, 'myapp/signup.html', {'error': 'Invalid username or password.'})
-    else:
-        return render(request, 'myapp/home.html')
+            return render(request, 'myapp/signup.html', {})
+
+    return render(request, 'myapp/home.html', {})
 
 def homepage_view(request):
     # Ensure the user is logged in, if required
@@ -38,11 +38,10 @@ def signup(request):
         school = request.POST.get('school')  # Assuming you have a school input in your form
         password = request.POST.get('password')
 
-        hashed_password = make_password(password)
         
         # Attempt to create a new FirebaseModel instance and save to Firestore
         try:
-            firebase_user = FirebaseModel(email=email, username=username, school=school, password=hashed_password)
+            firebase_user = FirebaseModel(email=email, username=username, school=school, password=password)
             firebase_user.save_to_firestore()
             return HttpResponse("User registered successfully.")
         except Exception as e:

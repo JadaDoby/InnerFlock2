@@ -12,15 +12,16 @@ class FirebaseModel(models.Model):
 
 
     def save_to_firestore(self):
-        
-        hashed_password = make_password(self.password)
+        # hashed_password = make_password(self.password)
         db = firestore.client()
         users_ref = db.collection('users')
         users_ref.add({
             'email': self.email,
             'username': self.username,
             'school': self.school,
-            'password': hashed_password,  # Store hashed password
+            # 'password': hashed_password,  # Store hashed password
+            'password': self.password,
+            
         })
 
     @classmethod
