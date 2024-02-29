@@ -29,20 +29,21 @@ def home(request):
 
 
 def signup(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        username = request.POST.get('username')
-        school = request.POST.get('school')
-        password = request.POST.get('password')
+    # if request.method == 'POST':
+    #     email = request.POST.get('email')
+    #     username = request.POST.get('username')
+    #     school = request.POST.get('school')
+    #     password = request.POST.get('password')
 
-        try:
-            firebase_user = FirebaseModel(email=email, username=username, school=school, password=password)
-            firebase_user.save_to_firestore()
-            return redirect('homepage')  # Redirect to the homepage upon successful signup
-        except Exception as e:
-            return render(request, 'myapp/signup.html', {'error_message': str(e)})
+    #     try:
+    #         firebase_user = FirebaseModel(email=email, username=username, school=school, password=password)
+    #         firebase_user.save_to_firestore()
+    #         return redirect('homepage')  # Redirect to the homepage upon successful signup
+    #     except Exception as e:
+    #         return render(request, 'myapp/signup.html', {'error_message': str(e)})
 
     return render(request, 'myapp/signup.html')
+
 
 @csrf_exempt
 def verify_token(request):

@@ -11,49 +11,7 @@
       type="text/css"
       href="{% static 'myapp/css/styles.css' %}"
     />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      header {
-        background-color: #333;
-        color: white;
-        padding: 10px 0;
-        text-align: center;
-      }
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      label {
-        margin-bottom: 5px;
-      }
-      input[type="text"],
-      input[type="password"],
-      input[type="email"] {
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-      button[type="submit"] {
-        padding: 10px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      button[type="submit"]:hover {
-        background-color: #0056b3;
-      }
-    </style>
+    <!-- Add your styles here -->
   </head>
   <body>
     <header>
@@ -61,7 +19,7 @@
     </header>
     <main class="container">
       <h2>Sign Up for InnerFlock</h2>
-      <form method="post" action="{% url 'signup' %}">
+      <form id="signup-form">
         {% csrf_token %}
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required />
@@ -76,16 +34,57 @@
         <input type="password" id="password" name="password" required />
 
         <button type="submit">Sign Up</button>
-
-        {% if firebase_data %}
-        <h2>Recent Firebase Data:</h2>
-        <ul>
-          {% for data in firebase_data %}
-          <li>{{ data.username }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
       </form>
+      <div id="error-message"></div>
+      <!-- Removed the server-side firebase_data part since we're doing this client-side -->
     </main>
+
+    <!-- Include Firebase JS SDK (compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script>
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      document
+        .getElementById("signup-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          // Username and School can be used to store additional information in Firebase or your own database
+
+          firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+              // Sign-up successful.
+              // Here you might want to save the username and school to your Firestore database
+              // Redirect the user to another page or show a success message
+              console.log("User created successfully with email: ", email);
+              window.location.href = "/homepage/"; // Adjust this as needed
+            })
+            .catch((error) => {
+              // Handle Errors here.
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              // Display the error message to the user
+              document.getElementById("error-message").textContent =
+                errorMessage;
+            });
+        });
+    </script>
   </body>
 </html>
