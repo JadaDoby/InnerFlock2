@@ -7,6 +7,29 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model, login
 from firebase_admin import auth as firebase_auth
+from django.contrib.auth.decorators import login_required
+from .models import UserProfile
+from .forms import UserProfileForm
+
+@login_required
+def view_profile(request):
+    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
+
+@login_required
+def edit_profile(request):
+    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect('view_profile')
+    else:
+        form = UserProfileForm(instance=user_profile)
+
+    return render(request, 'profile/edit_profile.html', {'form': form})
+
 
 def homepage(request):
     return render(request, 'myapp/homepage.html')
@@ -67,6 +90,12 @@ def verify_token(request):
         return JsonResponse({'success': False, 'message': 'Failed to authenticate'})
     
     
+@login_required
+def view_profile(request):
+    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
+
+    
 def search(request):
     return render(request, 'myapp/search.html', {})
 
@@ -81,3 +110,13 @@ def groupchat_view(request):
 
 def privatechat(request):
     return render(request, 'myapp/private.html', {})
+
+def chatroom(request):
+    return render(request, 'myapp/chatroom.html', {})
+
+def profile(request):
+    return render(request, 'myapp/profile.html', {})
+
+def privatechat(request):
+    return render(request, 'myapp/privatechat.html', {})
+

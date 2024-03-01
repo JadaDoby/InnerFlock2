@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        #chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #messages {
+            overflow-y: scroll;
+            max-height: 300px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        #message-input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        #send-button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <textarea id="message-input" placeholder="Type your message..."></textarea>
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        // You would typically use JavaScript to handle real-time communication and update the chat messages
+        // For simplicity, this example uses a placeholder function to simulate sending a message
+
+        function sendMessage() {
+            var messageInput = document.getElementById('message-input');
+            var messagesContainer = document.getElementById('messages');
+
+            if (messageInput.value.trim() !== '') {
+                var newMessage = document.createElement('div');
+                newMessage.textContent = messageInput.value;
+                messagesContainer.appendChild(newMessage);
+                messageInput.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        // Attach the sendMessage function to the Send button click event
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+    </script>
+</body>
+</html>

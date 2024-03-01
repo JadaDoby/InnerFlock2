@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password 
 from firebase_admin import firestore
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import User
 
 class FirebaseModel(models.Model):
     email = models.EmailField(max_length=255)
@@ -37,3 +38,10 @@ class FirebaseModel(models.Model):
                 # 'password': doc_data.get('password'),  # Generally, you shouldn't retrieve or send the password
             })
         return data
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True)
+    school_name = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.user.username
