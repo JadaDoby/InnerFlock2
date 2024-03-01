@@ -100,12 +100,12 @@ def search(request):
     return render(request, 'myapp/search.html', {})
 
 
-def groupchat(request):
+def groupchatPage(request):
     return redirect('groupchat_view')
 
 
 def groupchat_view(request):
-    return render(request, 'myapp/groupchat.html', {})
+    return render(request, 'myapp/groupchatPage.html', {})
 
 
 def privatechat(request):
