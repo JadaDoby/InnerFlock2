@@ -15,4 +15,5 @@ urlpatterns = [
     path('homepage/profile.html',views.profile,name='profile'),
     path('homepage/privatechat.html',views.privatechat,name='profile'),
     path('profile/', view_profile, name='view_profile'),
+    path('logout/', views.logout, name='logout'),
 ]

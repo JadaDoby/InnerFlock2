@@ -1,17 +1,20 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from .models import FirebaseModel
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout as auth_logout
 from firebase_admin import auth as firebase_auth
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from .forms import UserProfileForm
 from firebase_admin import firestore
 from .models import GroupChats  
+from django.urls import reverse
+from django.views.decorators.cache import never_cache
+
 
 @login_required
 def view_profile(request):
@@ -56,6 +59,7 @@ def add_user_to_group_chat(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+@login_required(login_url='')
 def homepage(request):
     # Retrieve group chat data from Firestore
     db = firestore.client()
@@ -82,7 +86,7 @@ def homepage(request):
         
     return render(request, 'myapp/homepage.html', {'group_chats': group_chats})
 
-
+@never_cache
 def home(request):
     # if request.method == 'POST':
     #     username = request.POST['username']
@@ -96,7 +100,8 @@ def home(request):
     #     else:
     #         return render(request, 'myapp/signup.html', {'error_message': 'Invalid username or password'})
     # else: 
-    
+    if request.user.is_authenticated:
+        return redirect('homepage')
     return render(request, 'myapp/home.html', {}) 
 
 
@@ -175,3 +180,7 @@ def profile(request):
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
 
+@never_cache
+def logout(request):
+    auth_logout(request)
+    return HttpResponseRedirect(reverse('home'))
