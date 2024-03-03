@@ -112,10 +112,83 @@
             padding: 10px;
         }
     </style>
+
+    <!-- Firbase authentication script -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script>
+        // JavaScript function to handle click event on group chat div
+        function handleGroupChatClick(groupChatId) {
+            const user = firebase.auth().currentUser;
+
+            if (user){
+                const currentUserID = user.uid
+
+                var isMember = false;
+
+                // Store group chats data in a JavaScript variable
+                const groupChats = JSON.parse('{{ group_chats_json|escapejs }}');
+                const currentChat = groupChats.find(chat => chat.id === groupChatId);
+
+                if ("{{currentUserID}}" in currentChat.groupMembers){
+                    isMember = true;
+                }
+                
+                if (isMember){
+                    // If user is a member, route user to the chat room
+                    window.location.href = "/chatroom/" + groupChatId;
+                }
+                else{
+                    // if chat is public then make pop up asking if user wants to join
+                    // else display that pop up that chat is private
+                    if (!currentChat.isPrivate){
+                        // If group chat is not private, display a pop-up card to join the group chat
+                        const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
+                        if (joinConfirmation) {
+                            // If user confirms joining, send an AJAX request to the backend to add the user to the group chat
+                            const requestBody = {
+                                groupChatId: groupChatId,
+                                userId: currentUserID
+                            };
+
+                            // Send the AJAX request
+                            fetch('/add_user_to_group_chat/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(requestBody)
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // If the request is successful, route user to the chat room
+                                    window.location.href = "/chatroom/" + groupChatId;
+                                } else {
+                                    // If there is an error, display an alert
+                                    alert("Failed to join the group chat. Please try again later.");
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert("An unexpected error occurred. Please try again later.");
+                            });
+                        }
+                    }
+                    else{
+                        // If group chat is private, display a message
+                        alert("You are not a member of this group chat.");
+                    }
+                }
+            }
+            else {
+                // user not signed in 
+                alert("Please sign in to access group chats.");
+            }
+        }
+    </script>
 </head>
 <body>
     <nav>
-        <a href="chatroom.html">My Public Chats</a>
+        <a href="groupchatPage.html">My Groups</a>
         <a href="privatechat.html">My Private Chats</a>
         <a href="profile.html">Profile</a>
     </nav>
@@ -126,45 +199,14 @@
     </div>
 
    <!-- Box Grid -->
-   <div class="box-container">
-        <div class="box">
-            <a href="chatroom.html">
-                <i class="fab fa-instagram"></i>
-                <span>Google Chat</span>
-            </a>
+   <div>
+        {% for chat in group_chats %}
+        <div style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" onclick="handleGroupChatClick('{{ chat.id }}')">
+            <h3>{{ chat.name }}</h3>
+            <p>{{ chat.description }}</p>
         </div>
-        <div class="box">
-            <a href="chatroom.html">
-                <i class="fab fa-facebook"></i>
-                <span>Walmart and Sam Chat</span>
-            </a>
-        </div>
-        <div class="box">
-            <a href="chatroom.html">
-                <i class="fab fa-twitter"></i>
-                <span>Vogue Chat</span>
-            </a>
-        </div>
-
-        <div class="box">
-            <a href="chatroom.html">
-                <i class="fab fa-instagram"></i>
-                <span> Liberty Mutual</span>
-            </a>
-        </div>
-        <div class="box">
-            <a href="chatroom.html">
-                <i class="fab fa-facebook"></i>
-                <span> Ramen Headquater</span>
-            </a>
-        </div>
-        <div class="box">
-            <a href="chatroom.html">
-                <i class="fab fa-twitter"></i>
-                <span> Lindy's Homemade </span>
-            </a>
-        </div>
-   </div>
+        {% endfor %}
+    </div>
 
 
     <!-- Footer with social media icons -->
