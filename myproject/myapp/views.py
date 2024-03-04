@@ -161,6 +161,7 @@ def groupchatPage(request):
 
 def groupchat_view(request):
     #groupchats = GroupChats.objects.all()
+    #pass in group chats and current user
     return render(request, 'myapp/groupchatPage.html', {})
 
 

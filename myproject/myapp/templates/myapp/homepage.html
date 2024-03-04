@@ -114,9 +114,10 @@
     </style>
 </head>
 <body>
+    <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <!-- Firbase authentication script -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script> <!-- Include the Realtime Database module -->
     <script>
         // Firebase configuration
       const firebaseConfig = {
@@ -134,20 +135,20 @@
 
 
         // JavaScript function to handle click event on group chat div
-        /*const handleGroupChatClick = (groupChatId) => {
+        const handleGroupChatClick = (groupChatId, groupMembers, isPrivate) => {
             const user = firebase.auth().currentUser;
+            isPrivate = isPrivate === 'true';
+            var db = firebase.database()
 
             if (user){
                 const currentUserID = user.uid
-
                 var isMember = false;
 
                 // Store group chats data in a JavaScript variable
-                const groupChats = JSON.parse('{{ group_chats_json|escapejs }}');
-                const currentChat = groupChats.find(chat => chat.id === groupChatId); //may be .uid instead of id
-
-                if ("{{currentUserID}}" in currentChat.groupMembers){
-                    isMember = true;
+                for (let member in groupMembers){
+                    if (currentUserID === groupMembers[member]){
+                        isMember = true;
+                    }
                 }
                 
                 if (isMember){
@@ -157,42 +158,27 @@
                 else{
                     // if chat is public then make pop up asking if user wants to join
                     // else display that pop up that chat is private
-                    if (!currentChat.isPrivate){
+                    if (!isPrivate){
                         // If group chat is not private, display a pop-up card to join the group chat
                         const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
                         if (joinConfirmation) {
-                            // If user confirms joining, send an AJAX request to the backend to add the user to the group chat
-                            const requestBody = {
-                                groupChatId: groupChatId,
-                                userId: currentUserID
-                            };
-
-                            // Send the AJAX request
-                            fetch('/add_user_to_group_chat/', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(requestBody)
-                            })
-                            .then(response => {
-                                if (response.ok) {
-                                    // If the request is successful, route user to the chat room
-                                    window.location.href = "/chatroom/" + groupChatId;
-                                } else {
-                                    // If there is an error, display an alert
-                                    alert("Failed to join the group chat. Please try again later.");
+                            try{
+                                var updates = {
+                                    groupMembers: groupMembers.push(currentUserID)
                                 }
-                            })
-                            .catch(error => {
+                                db.ref('group_chats/' + groupChatId).update(updates)
+
+                                window.location.href = "/chatroom/" + groupChatId;
+                            }
+                            catch (error) {
                                 console.error('Error:', error);
                                 alert("An unexpected error occurred. Please try again later.");
-                            });
+                            }
                         }
                     }
                     else{
                         // If group chat is private, display a message
-                        alert("You are not a member of this group chat.");
+                        alert("This group is set to private.");
                     }
                 }
             }
@@ -200,19 +186,9 @@
                 // user not signed in 
                 alert("Please sign in to access group chats.");
             }
-        };*/
-
-        // this is to test why firebase.auth breaks handler
-        const handleGroupChatClick = (groupChatId) => {
-            //alert("pressed")
-            if (firebase.auth().currentUser !== null){
-                alert("pressed")
-                window.location.href = "/chatroom/" + groupChatId;
-            }
-            else{
-                alert("please sign in to access group chats")
-            }
-        }
+        };
+    // Wait for Firebase authentication state to change
+    firebase.auth().onAuthStateChanged(user => {});
     </script>
     <nav>
         <a href="groupchatPage">My Groups</a>
@@ -226,31 +202,18 @@
     </div>
 
    <!-- Box Grid -->
-
-    <div
-        style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
-        onclick="handleGroupChatClick('{{ group_chats.0.id }}')"
-    >
-        <h3>{{ group_chats.0.name }}</h3>
-        <p>{{ group_chats.0.description }}</p>
-        <p>{{ group_chats.0.id }}</p>
-    </div>
-
-    <!--
    <div>
         {% for chat in group_chats %}
         <div 
             style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
-            onclick="handleGroupChatClick('{{ chat.id }}')"
-        >
+            onclick="handleGroupChatClick('{{ chat.id }}', {{chat.groupMembers}}, '{% if chat.isPrivate %}true{% else %}false{% endif %}' )"
+        >                                              
             <h3>{{ chat.name }}</h3>
             <p>{{ chat.description }}</p>
             <p>{{ chat.id }}</p>
         </div>
         {% endfor %}
     </div>
-   -->
-
 
     <!-- Footer with social media icons -->
     <footer>
