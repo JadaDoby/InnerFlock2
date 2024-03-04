@@ -112,12 +112,29 @@
             padding: 10px;
         }
     </style>
-
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <!-- Firbase authentication script -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script>
+        // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+
         // JavaScript function to handle click event on group chat div
-        function handleGroupChatClick(groupChatId) {
+        /*const handleGroupChatClick = (groupChatId) => {
             const user = firebase.auth().currentUser;
 
             if (user){
@@ -127,7 +144,7 @@
 
                 // Store group chats data in a JavaScript variable
                 const groupChats = JSON.parse('{{ group_chats_json|escapejs }}');
-                const currentChat = groupChats.find(chat => chat.id === groupChatId);
+                const currentChat = groupChats.find(chat => chat.id === groupChatId); //may be .uid instead of id
 
                 if ("{{currentUserID}}" in currentChat.groupMembers){
                     isMember = true;
@@ -183,12 +200,22 @@
                 // user not signed in 
                 alert("Please sign in to access group chats.");
             }
+        };*/
+
+        // this is to test why firebase.auth breaks handler
+        const handleGroupChatClick = (groupChatId) => {
+            //alert("pressed")
+            if (firebase.auth().currentUser !== null){
+                alert("pressed")
+                window.location.href = "/chatroom/" + groupChatId;
+            }
+            else{
+                alert("please sign in to access group chats")
+            }
         }
     </script>
-</head>
-<body>
     <nav>
-        <a href="groupchatPage.html">My Groups</a>
+        <a href="groupchatPage">My Groups</a>
         <a href="privatechat.html">My Private Chats</a>
         <a href="profile.html">Profile</a>
     </nav>
@@ -199,14 +226,30 @@
     </div>
 
    <!-- Box Grid -->
+
+    <div
+        style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
+        onclick="handleGroupChatClick('{{ group_chats.0.id }}')"
+    >
+        <h3>{{ group_chats.0.name }}</h3>
+        <p>{{ group_chats.0.description }}</p>
+        <p>{{ group_chats.0.id }}</p>
+    </div>
+
+    <!--
    <div>
         {% for chat in group_chats %}
-        <div style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" onclick="handleGroupChatClick('{{ chat.id }}')">
+        <div 
+            style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
+            onclick="handleGroupChatClick('{{ chat.id }}')"
+        >
             <h3>{{ chat.name }}</h3>
             <p>{{ chat.description }}</p>
+            <p>{{ chat.id }}</p>
         </div>
         {% endfor %}
     </div>
+   -->
 
 
     <!-- Footer with social media icons -->

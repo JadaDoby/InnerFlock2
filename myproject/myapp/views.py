@@ -57,7 +57,30 @@ def add_user_to_group_chat(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def homepage(request):
-    return render(request, 'myapp/homepage.html')
+    # Retrieve group chat data from Firestore
+    db = firestore.client()
+    group_chats_ref = db.collection('group_chats').stream()
+
+    # Parse Firestore data and create GroupChats objects
+    group_chats = []
+    for doc in group_chats_ref:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        #data['data'] = doc._data
+        '''
+        chat = GroupChats(
+            name=data['name'],
+            description=data['description'],
+            groupAdmin=data['groupAdmin'],
+            isPrivate=data['isPrivate']
+            # Add other fields as needed
+        )
+        '''
+        #chat.id = doc.id
+        #group_chats.append(chat)
+        group_chats.append(data)
+        
+    return render(request, 'myapp/homepage.html', {'group_chats': group_chats})
 
 
 def home(request):
@@ -74,26 +97,7 @@ def home(request):
     #         return render(request, 'myapp/signup.html', {'error_message': 'Invalid username or password'})
     # else: 
     
-    # Retrieve group chat data from Firestore
-    db = firestore.client()
-    group_chats_ref = db.collection('group_chats')
-    group_chats_data = group_chats_ref.get()
-
-    # Parse Firestore data and create GroupChats objects
-    group_chats = []
-    for doc in group_chats_data:
-        data = doc.to_dict()
-        chat = GroupChats(
-            name=data['name'],
-            description=data['description'],
-            groupAdmin=data['groupAdmin'],
-            isPrivate=data['isPrivate']
-            # Add other fields as needed
-        )
-        chat.id = doc.id
-        group_chats.append(chat)
-        
-    return render(request, 'myapp/home.html', {'group_chats': group_chats}) 
+    return render(request, 'myapp/home.html', {}) 
 
 
 def signup(request):
@@ -156,8 +160,8 @@ def groupchatPage(request):
 
 
 def groupchat_view(request):
-    groupchats = GroupChats.objects.all()
-    return render(request, 'myapp/groupchatPage.html', {'groupchats' : groupchats})
+    #groupchats = GroupChats.objects.all()
+    return render(request, 'myapp/groupchatPage.html', {})
 
 
 def privatechat(request):
