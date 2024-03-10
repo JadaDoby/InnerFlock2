@@ -164,7 +164,7 @@
                         if (joinConfirmation) {
                             try{
                                 var updates = {
-                                    groupMembers: groupMembers.push(currentUserID)
+                                    groupMembers: groupMembers.push(currentUserID)      //this is not adding to database, fix later
                                 }
                                 db.ref('group_chats/' + groupChatId).update(updates)
 
