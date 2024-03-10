@@ -160,15 +160,13 @@ def groupchatPage(request):
 
 
 def groupchat_view(request):
-    #groupchats = GroupChats.objects.all()
-    #pass in group chats and current user
     return render(request, 'myapp/groupchatPage.html', {})
 
 
 def privatechat(request):
     return render(request, 'myapp/private.html', {})
 
-def chatroom(request):
+def chatroom(request, groupid):
     return render(request, 'myapp/chatroom.html', {})
 
 def profile(request):

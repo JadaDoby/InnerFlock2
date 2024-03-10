@@ -153,7 +153,7 @@
                 
                 if (isMember){
                     // If user is a member, route user to the chat room
-                    window.location.href = "/chatroom/" + groupChatId;
+                    window.location.href = "/homepage/chatroom/" + groupChatId;
                 }
                 else{
                     // if chat is public then make pop up asking if user wants to join
@@ -168,7 +168,7 @@
                                 }
                                 db.ref('group_chats/' + groupChatId).update(updates)
 
-                                window.location.href = "/chatroom/" + groupChatId;
+                                window.location.href = "homepage/chatroom/" + groupChatId;
                             }
                             catch (error) {
                                 console.error('Error:', error);
