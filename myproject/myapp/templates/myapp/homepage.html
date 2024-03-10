@@ -117,7 +117,7 @@
     <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script> <!-- Include the Realtime Database module -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script> <!-- need to import firestore not realtime db -->
     <script>
         // Firebase configuration
       const firebaseConfig = {
@@ -138,7 +138,7 @@
         const handleGroupChatClick = (groupChatId, groupMembers, isPrivate) => {
             const user = firebase.auth().currentUser;
             isPrivate = isPrivate === 'true';
-            var db = firebase.database()
+            var db = firebase.firestore()
 
             if (user){
                 const currentUserID = user.uid
