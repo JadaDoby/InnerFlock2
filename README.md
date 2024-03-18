@@ -2,7 +2,7 @@
 
 ## To run
 ```bash
-cd runsever
+cd myproject
 ```
 
 ``` bash
