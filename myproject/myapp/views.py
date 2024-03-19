@@ -10,6 +10,8 @@ from firebase_admin import auth as firebase_auth
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from .forms import UserProfileForm
+from firebase_admin import firestore
+from .models import GroupChats  
 
 @login_required
 def view_profile(request):
@@ -30,9 +32,55 @@ def edit_profile(request):
 
     return render(request, 'profile/edit_profile.html', {'form': form})
 
+def add_user_to_group_chat(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        group_chat_id = data.get('groupChatId')
+        user_id = data.get('userId')
+
+        try:
+            # Retrieve the group chat object from the database
+            group_chat = GroupChats.objects.get(id=group_chat_id)
+            
+            # Add the user ID to the group chat's members list
+            group_chat.groupMembers.add(user_id)
+            
+            # Save the updated group chat object
+            group_chat.save()
+
+            return JsonResponse({'success': True})
+        except GroupChats.DoesNotExist:
+            return JsonResponse({'error': 'Group chat not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def homepage(request):
-    return render(request, 'myapp/homepage.html')
+    # Retrieve group chat data from Firestore
+    db = firestore.client()
+    group_chats_ref = db.collection('group_chats').stream()
+
+    # Parse Firestore data and create GroupChats objects
+    group_chats = []
+    for doc in group_chats_ref:
+        data = doc.to_dict()
+        data['id'] = doc.id
+        #data['data'] = doc._data
+        '''
+        chat = GroupChats(
+            name=data['name'],
+            description=data['description'],
+            groupAdmin=data['groupAdmin'],
+            isPrivate=data['isPrivate']
+            # Add other fields as needed
+        )
+        '''
+        #chat.id = doc.id
+        #group_chats.append(chat)
+        group_chats.append(data)
+        
+    return render(request, 'myapp/homepage.html', {'group_chats': group_chats})
 
 
 def home(request):
@@ -48,6 +96,7 @@ def home(request):
     #     else:
     #         return render(request, 'myapp/signup.html', {'error_message': 'Invalid username or password'})
     # else: 
+    
     return render(request, 'myapp/home.html', {}) 
 
 
@@ -96,6 +145,12 @@ def view_profile(request):
     return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
 
     
+@login_required
+def view_profile(request):
+    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
+    return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
+
+    
 def search(request):
     return render(request, 'myapp/search.html', {})
 
@@ -111,7 +166,7 @@ def groupchat_view(request):
 def privatechat(request):
     return render(request, 'myapp/private.html', {})
 
-def chatroom(request):
+def chatroom(request, groupid):
     return render(request, 'myapp/chatroom.html', {})
 
 def profile(request):

@@ -38,6 +38,7 @@ class FirebaseModel(models.Model):
                 # 'password': doc_data.get('password'),  # Generally, you shouldn't retrieve or send the password
             })
         return data
+    
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True)
@@ -45,3 +46,11 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+class GroupChats(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=350)
+    image = models.ImageField()
+    groupAdmin = models.ForeignKey(User, related_name = 'admin_of_groupchat', on_delete=models.SET_NULL, null=True)  # group chats remain if admin is deleted
+    groupMembers = models.ManyToManyField(User, related_name='groupchat_participants')  
+    isPrivate = models.BooleanField()
