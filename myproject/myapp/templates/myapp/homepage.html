@@ -159,12 +159,11 @@
                     const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
                     if (joinConfirmation) {
                         try{
-                            var updates = {
-                                groupMembers: groupMembers.push(currentUserID)      //this is not adding to database, fix later
-                            }
-                            db.ref('group_chats/' + groupChatId).update(updates)
+                            db.collection('group_chats').doc(groupChatId).update({
+                                groupMembers: firebase.firestore.FieldValue.arrayUnion(currentUserID)
+                            });
 
-                            window.location.href = "homepage/chatroom/" + groupChatId;
+                            window.location.href = "/homepage/chatroom/" + groupChatId;
                         }
                         catch (error) {
                             console.error('Error:', error);
