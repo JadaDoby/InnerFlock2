@@ -1,3 +1,4 @@
+<!-- myapp/templates/myapp/profile.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -37,18 +38,20 @@
     <section>
       <table class="table table-striped">
         <tbody>
+          {% for user_data in firestore_data %}
           <tr>
             <th scope="row">Username:</th>
-            <td>{{ user_profile.user.username }}</td>
+            <td>{{ user_data.username }}</td>
           </tr>
           <tr>
             <th scope="row">Email:</th>
-            <td>{{ user_profile.user.email }}</td>
+            <td>{{ user_data.email }}</td>
           </tr>
           <tr>
             <th scope="row">School:</th>
-            <td>{{ user_profile.school_name }}</td>
+            <td>{{ user_data.school }}</td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </section>
@@ -68,7 +71,7 @@
           .signOut()
           .then(function () {
             // window.location.href = "{% url 'home' %}";
-            window.location.href = "/";
+            window.location.href = "/profile/";
 
           })
           .catch(function (error) {

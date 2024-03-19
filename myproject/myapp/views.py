@@ -15,7 +15,12 @@ from .models import GroupChats
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
 
+db = firestore.client()
 
+# Assuming you have access to the Firebase UID and the Django user instance
+def save_user_profile(user, firebase_uid):
+    UserProfile.objects.create(user=user, firebase_uid=firebase_uid)
+    
 @login_required
 def view_profile(request):
     user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
@@ -124,13 +129,20 @@ def signup(request):
 
 @csrf_exempt
 def verify_token(request):
+    """ 
+    Verify the token passed in the request.
+    If the token is valid, authenticate the user.
+    """
     data = json.loads(request.body)
     id_token = data.get('token')
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
-        # UID from the decoded token
         uid = decoded_token['uid']
         
+         # Extract user information
+        email = decoded_token.get('email')
+        username = decoded_token.get('name', 'default_username')
+        school = 'default_school'  
         # Authenticate the user using your custom backend
         user = authenticate(request, uid=uid)
         if user:
@@ -174,8 +186,20 @@ def privatechat(request):
 def chatroom(request, groupid):
     return render(request, 'myapp/chatroom.html', {})
 
+@login_required
 def profile(request):
-    return render(request, 'myapp/profile.html', {})
+    try:
+        # Fetch data from Firestore using the UserProfile model method
+        firestore_data = UserProfile.get_data_from_firestore()
+    except Exception as e:
+        # Handle exceptions if any
+        print(f"Failed to fetch data from Firestore: {e}")
+        firestore_data = []
+
+    return render(request, 'myapp/profile.html', {'firestore_data': firestore_data})
+
+def privatechat(request):
+    return render(request, 'myapp/privatechat.html', {})
 
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
@@ -183,4 +207,3 @@ def privatechat(request):
 @never_cache
 def logout(request):
     auth_logout(request)
-    return HttpResponseRedirect(reverse('home'))
