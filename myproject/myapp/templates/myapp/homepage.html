@@ -135,9 +135,8 @@
 
 
         // JavaScript function to handle click event on group chat div
-        const handleGroupChatClick = (groupChatId, groupMembers, isPrivate) => {
+        const handleGroupChatClick = (groupChatId, groupMembers) => {
             const user = firebase.auth().currentUser;
-            isPrivate = isPrivate === 'true';
             var db = firebase.firestore()
 
             if (user){
@@ -156,29 +155,21 @@
                     window.location.href = "/homepage/chatroom/" + groupChatId;
                 }
                 else{
-                    // if chat is public then make pop up asking if user wants to join
-                    // else display that pop up that chat is private
-                    if (!isPrivate){
-                        // If group chat is not private, display a pop-up card to join the group chat
-                        const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
-                        if (joinConfirmation) {
-                            try{
-                                var updates = {
-                                    groupMembers: groupMembers.push(currentUserID)      //this is not adding to database, fix later
-                                }
-                                db.ref('group_chats/' + groupChatId).update(updates)
+                    // does user want to join
+                    const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
+                    if (joinConfirmation) {
+                        try{
+                            var updates = {
+                                groupMembers: groupMembers.push(currentUserID)      //this is not adding to database, fix later
+                            }
+                            db.ref('group_chats/' + groupChatId).update(updates)
 
-                                window.location.href = "homepage/chatroom/" + groupChatId;
-                            }
-                            catch (error) {
-                                console.error('Error:', error);
-                                alert("An unexpected error occurred. Please try again later.");
-                            }
+                            window.location.href = "homepage/chatroom/" + groupChatId;
                         }
-                    }
-                    else{
-                        // If group chat is private, display a message
-                        alert("This group is set to private.");
+                        catch (error) {
+                            console.error('Error:', error);
+                            alert("An unexpected error occurred. Please try again later.");
+                        }
                     }
                 }
             }
@@ -206,7 +197,7 @@
         {% for chat in group_chats %}
         <div 
             style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
-            onclick="handleGroupChatClick('{{ chat.id }}', {{chat.groupMembers}}, '{% if chat.isPrivate %}true{% else %}false{% endif %}' )"
+            onclick="handleGroupChatClick('{{ chat.id }}', {{chat.groupMembers}})"
         >                                              
             <h3>{{ chat.name }}</h3>
             <p>{{ chat.description }}</p>
