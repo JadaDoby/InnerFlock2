@@ -1,3 +1,4 @@
+# myapp/apps.py
 from django.apps import AppConfig
 
 class MyAppConfig(AppConfig):
@@ -6,4 +7,4 @@ class MyAppConfig(AppConfig):
 
     def ready(self):
         from .firebase import initialize_firebase
-        initialize_firebase()
+        self.db = initialize_firebase()

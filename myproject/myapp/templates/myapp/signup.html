@@ -1,3 +1,4 @@
+<!-- myapp/templates/myapp/signup.html -->
 <!DOCTYPE html>
 {% load static %}
 
@@ -42,6 +43,7 @@
     <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script>
       // Firebase configuration
       const firebaseConfig = {
@@ -63,24 +65,41 @@
           e.preventDefault();
 
           const email = document.getElementById("email").value;
+          const username = document.getElementById("username").value;
+          const school = document.getElementById("school").value;
           const password = document.getElementById("password").value;
-          // Username and School can be used to store additional information in Firebase or your own database
 
+          // First, create the user with email and password
           firebase
             .auth()
             .createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
-              // Sign-up successful.
-              // Here you might want to save the username and school to your Firestore database
-              // Redirect the user to another page or show a success message
-              console.log("User created successfully with email: ", email);
-              window.location.href = "/homepage/"; // Adjust this as needed
+              // User creation successful.
+              const uid = userCredential.user.uid; // Get the unique user ID from the user credential
+
+              // Now, add a document to Firestore with the additional user information.
+              firebase
+                .firestore()
+                .collection("users")
+                .doc(uid)
+                .set({
+                  email: email,
+                  username: username,
+                  school: school,
+                  // Do NOT store the password in Firestore. Firebase handles it securely for authentication.
+                })
+                .then(() => {
+                  console.log("Firestore document successfully written!");
+                  window.location.href = "/homepage/"; // Redirect after successful sign-up and Firestore document creation
+                })
+                .catch((error) => {
+                  console.error("Error writing document to Firestore: ", error);
+                });
             })
             .catch((error) => {
-              // Handle Errors here.
+              // Handle sign-up errors here.
               const errorCode = error.code;
               const errorMessage = error.message;
-              // Display the error message to the user
               document.getElementById("error-message").textContent =
                 errorMessage;
             });
