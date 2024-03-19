@@ -48,11 +48,16 @@ class UserProfile(models.Model):
     school = models.CharField(max_length=100)
     
     @classmethod
-    def get_data_from_firestore(cls):
+    def get_data_from_firestore(cls, user_email):
         db = firestore.client()
         users_ref = db.collection('users')
         data = []
-        for doc in users_ref.stream():
+        
+        # Get the current user's data from Firestore
+        user_doc = users_ref.where('email', '==', user_email).get()
+        
+        # Process the retrieved user data
+        for doc in user_doc:
             doc_data = doc.to_dict()
             email = doc_data.get('email')
             username = doc_data.get('username')
@@ -67,6 +72,7 @@ class UserProfile(models.Model):
                 user.save()
             profile, _ = cls.objects.get_or_create(user=user, defaults={'firebase_uid': firebase_uid, 'email': email, 'username': username, 'school': school})
             
+            # Append the user data to the data list
             data.append({
                 'email': email,
                 'username': username,

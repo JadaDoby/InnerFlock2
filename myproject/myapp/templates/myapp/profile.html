@@ -38,21 +38,20 @@
     <section>
       <table class="table table-striped">
         <tbody>
-          {% for user_data in firestore_data %}
           <tr>
             <th scope="row">Username:</th>
-            <td>{{ user_data.username }}</td>
-          </tr>
-          <tr>
+            <td>{{ firestore_data.username }}</td>
+        </tr>
+        <tr>
             <th scope="row">Email:</th>
-            <td>{{ user_data.email }}</td>
-          </tr>
-          <tr>
+            <td>{{ firestore_data.email }}</td>
+        </tr>
+        <tr>
             <th scope="row">School:</th>
-            <td>{{ user_data.school }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
+            <td>{{ firestore_data.school }}</td>
+        </tr>
+          <!-- Add more profile attributes as needed -->
+      </tbody>
       </table>
     </section>
 
