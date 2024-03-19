@@ -9,7 +9,6 @@ from django.contrib.auth import get_user_model, login, logout as auth_logout
 from firebase_admin import auth as firebase_auth
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
-from .forms import UserProfileForm
 from firebase_admin import firestore
 from .models import GroupChats  
 from django.urls import reverse
@@ -20,25 +19,6 @@ db = firestore.client()
 # Assuming you have access to the Firebase UID and the Django user instance
 def save_user_profile(user, firebase_uid):
     UserProfile.objects.create(user=user, firebase_uid=firebase_uid)
-    
-@login_required
-def view_profile(request):
-    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-    return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
-
-@login_required
-def edit_profile(request):
-    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
-        if form.is_valid():
-            form.save()
-            return redirect('view_profile')
-    else:
-        form = UserProfileForm(instance=user_profile)
-
-    return render(request, 'profile/edit_profile.html', {'form': form})
 
 def add_user_to_group_chat(request):
     if request.method == 'POST':
@@ -93,37 +73,12 @@ def homepage(request):
 
 @never_cache
 def home(request):
-    # if request.method == 'POST':
-    #     username = request.POST['username']
-    #     password = request.POST['password']
-    #     user = authenticate(request, username=username, password=password)
-    #     print("User:", user)  # Debugging statement
-
-    #     if user is not None:
-    #         login(request, user)
-    #         return redirect('homepage')  # Redirect to the homepage upon successful login
-    #     else:
-    #         return render(request, 'myapp/signup.html', {'error_message': 'Invalid username or password'})
-    # else: 
     if request.user.is_authenticated:
         return redirect('homepage')
     return render(request, 'myapp/home.html', {}) 
 
 
 def signup(request):
-    # if request.method == 'POST':
-    #     email = request.POST.get('email')
-    #     username = request.POST.get('username')
-    #     school = request.POST.get('school')
-    #     password = request.POST.get('password')
-
-    #     try:
-    #         firebase_user = FirebaseModel(email=email, username=username, school=school, password=password)
-    #         firebase_user.save_to_firestore()
-    #         return redirect('homepage')  # Redirect to the homepage upon successful signup
-    #     except Exception as e:
-    #         return render(request, 'myapp/signup.html', {'error_message': str(e)})
-
     return render(request, 'myapp/signup.html')
 
 
@@ -154,20 +109,7 @@ def verify_token(request):
         # Log the error for debugging
         print(e)
         return JsonResponse({'success': False, 'message': 'Failed to authenticate'})
-    
-    
-@login_required
-def view_profile(request):
-    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-    return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
-
-    
-@login_required
-def view_profile(request):
-    user_profile = UserProfile.objects.get_or_create(user=request.user)[0]
-    return render(request, 'profile/view_profile.html', {'user_profile': user_profile})
-
-    
+  
 def search(request):
     return render(request, 'myapp/search.html', {})
 
