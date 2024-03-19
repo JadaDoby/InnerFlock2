@@ -87,6 +87,42 @@
           // User is signed in. Optionally, you can add logic here to handle a signed-in user.
         }
       });
+                // Store group chats data in a JavaScript variable
+                for (let member in groupMembers){
+                    if (currentUserID === groupMembers[member]){
+                        isMember = true;
+                    }
+                }
+                
+                if (isMember){
+                    // If user is a member, route user to the chat room
+                    window.location.href = "/homepage/chatroom/" + groupChatId;
+                }
+                else{
+                    // does user want to join
+                    const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
+                    if (joinConfirmation) {
+                        try{
+                            db.collection('group_chats').doc(groupChatId).update({
+                                groupMembers: firebase.firestore.FieldValue.arrayUnion(currentUserID)
+                            });
+
+                            window.location.href = "/homepage/chatroom/" + groupChatId;
+                        }
+                        catch (error) {
+                            console.error('Error:', error);
+                            alert("An unexpected error occurred. Please try again later.");
+                        }
+                    }
+                }
+            }
+            else {
+                // user not signed in 
+                alert("Please sign in to access group chats.");
+            }
+        };
+    // Wait for Firebase authentication state to change
+    firebase.auth().onAuthStateChanged(user => {});
     </script>
 
     <!-- Page Content -->
