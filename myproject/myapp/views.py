@@ -128,44 +128,6 @@ def privatechat(request):
 def chatroom(request, groupid):
     return render(request, 'myapp/chatroom.html', {})
 
-""" @login_required
-def profile(request):
-    try:
-        # Accessing UserProfile associated with the current user
-        user_profile = request.user.userprofile
-
-        # Extracting firebase_uid from the user_profile
-        firebase_uid = user_profile.firebase_uid
-        
-        # Now you can use firebase_uid to get the document reference
-        doc_ref = db.collection(u'users').document(firebase_uid)
-        doc = doc_ref.get()
-        if doc.exists:
-            user_profile_data = doc.to_dict()
-        else:
-            user_profile_data = None
-    except UserProfile.DoesNotExist:
-        print(f"UserProfile does not exist for user {request.user}")
-        user_profile_data = None
-    except Exception as e:
-        print(f"Failed to fetch user data: {e}")
-        user_profile_data = None
-
-    return render(request, 'myapp/profile.html', {'user_profile': user_profile_data}) """
-
-""" @login_required
-def profile(request):
-    try:
-        # Fetch data from Firestore using the UserProfile model method
-        firestore_data = UserProfile.get_data_from_firestore()
-    except Exception as e:
-        # Handle exceptions if any
-        print(f"Failed to fetch data from Firestore: {e}")
-        firestore_data = []
-
-    return render(request, 'myapp/profile.html', {'firestore_data': firestore_data}) """
-
-@login_required
 def profile(request):
     print("Current user:", request.user)
     print(f"Email for Firestore Query: '{request.user.email}'")
