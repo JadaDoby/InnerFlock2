@@ -1,5 +1,9 @@
 <!-- myapp/templates/myapp/profile.html -->
+{% extends 'myapp/base.html' %}
 {% load static %}
+
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -79,10 +83,7 @@
       </script>
   </head>
   <body>
-    <header>
-      <h1>User Profile</h1>
-    </header>
-
+    <h1>User Profile</h1>
     <section>
       <table class="table table-striped">
         <tbody>
@@ -117,3 +118,4 @@
     </footer>
   </body>
 </html>
+{% endblock %}

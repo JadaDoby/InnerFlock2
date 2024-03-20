@@ -7,16 +7,16 @@ body {
 }
 
 nav {
-  background-color: #000000;
+  background-color: #e6e2d9;
   overflow: hidden;
   text-align: center;
   display: flex;
-  justify-content: center; /* Center the items horizontally */
+  justify-content: center; 
 }
 
 nav a {
   display: inline-block;
-  color: white;
+  color: rgb(27, 27, 27);
   text-align: center;
   padding: 20px 30px;
   text-decoration: none;
@@ -74,19 +74,19 @@ main {
 
 footer a i {
   font-size: 24px;
-  color: #ffffff; /* Change the color to your desired color */
+  color: black; 
 }
 
 footer {
-  background-color: #000000;
+  background-color: #e6e2d9;
   padding: 20px;
   text-align: center;
-  color: white;
+  color: black;
   margin-top: auto;
 }
 
 footer a {
-  color: white;
+  color: black;
   margin: 0 10px;
   font-size: 24px;
 }

@@ -1,10 +1,13 @@
+{% extends 'myapp/base.html' %}
 {% load static %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-jp4pRl9N0B5vaFuoynmZVf6IHxMw5FeqEIKnxwrsg39JSKzQ+xr2F6tBiPHFeCuYJnY0X5hSlcOeyH9BBP7ULw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-jp4pRl9N0B5vaFuoynmZVf6IHxMw5FeqEIKnxwrsg39JSKzQ+xr2F6tBiPHFeCuYJnY0X5hSlcOeyH9BBP7ULw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
     <title>Homepage!</title>
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
     
@@ -86,12 +89,6 @@
           }
         });
       </script>
-
-    <nav>
-        <a href="{% url 'groupchatPage' %}">My Groups</a>
-        <a href="{% url 'privatechat' %}">My Private Chats</a>
-        <a href="{% url 'profile' %}">Profile</a>
-    </nav>
     
     <!-- Page Content -->
     <div class="page-content">
@@ -112,12 +109,9 @@
         {% endfor %}
     </div>
 
-    <!-- Footer with social media icons -->
-    <footer>
-        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-    </footer>
+    
 
 </body>
 </html>
+
+{% endblock %}
