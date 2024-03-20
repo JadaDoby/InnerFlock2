@@ -38,19 +38,24 @@
     <section>
       <table class="table table-striped">
         <tbody>
+          {% if user_profile_data %}
           <tr>
-            <th scope="row">Username:</th>
-            <td>{{ firestore_data.username }}</td>
-        </tr>
-        <tr>
-            <th scope="row">Email:</th>
-            <td>{{ firestore_data.email }}</td>
-        </tr>
-        <tr>
-            <th scope="row">School:</th>
-            <td>{{ firestore_data.school }}</td>
-        </tr>
-          <!-- Add more profile attributes as needed -->
+              <th scope="row">Username:</th>
+              <td>{{ user_profile_data.username }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Email:</th>
+              <td>{{ user_profile_data.email }}</td>
+          </tr>
+          <tr>
+              <th scope="row">School:</th>
+              <td>{{ user_profile_data.school }}</td>
+          </tr>
+          {% else %}
+          <tr>
+              <td colspan="2">No data available</td>
+          </tr>
+          {% endif %}
       </tbody>
       </table>
     </section>

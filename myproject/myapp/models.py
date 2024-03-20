@@ -47,39 +47,55 @@ class UserProfile(models.Model):
     username = models.CharField(max_length=100)
     school = models.CharField(max_length=100)
     
-    @classmethod
-    def get_data_from_firestore(cls, user_email):
+    """ @classmethod
+    def get_data_from_firestore(cls, user):
         db = firestore.client()
         users_ref = db.collection('users')
         data = []
-        
-        # Get the current user's data from Firestore
-        user_doc = users_ref.where('email', '==', user_email).get()
-        
-        # Process the retrieved user data
-        for doc in user_doc:
+        for doc in users_ref.stream():
             doc_data = doc.to_dict()
             email = doc_data.get('email')
             username = doc_data.get('username')
             school = doc_data.get('school')
-            password = doc_data.get('password')  # Assuming password is also stored in Firestore
             firebase_uid = doc.id  # Assuming Firebase UID is the document ID
-            
-            # Create or update User and UserProfile objects
-            user, created = User.objects.get_or_create(email=email, defaults={'username': username})
-            if created:
-                user.set_password(password)  # Set password if user is created
-                user.save()
-            profile, _ = cls.objects.get_or_create(user=user, defaults={'firebase_uid': firebase_uid, 'email': email, 'username': username, 'school': school})
-            
-            # Append the user data to the data list
-            data.append({
-                'email': email,
-                'username': username,
-                'school': school,
-                'firebase_uid': firebase_uid,
-            })
-        return data
+
+            # Check if the current user's email matches the email in Firestore
+            if email == user.email:
+                data.append({
+                    'email': email,
+                    'username': username,
+                    'school': school,
+                    'firebase_uid': firebase_uid,
+                })
+                break  # Exit the loop after finding the current user's data
+        return data """
+
+    @classmethod
+    def get_data_from_firestore(cls, firebase_uid):
+        print(f"Attempting to fetch Firestore data for UID: {firebase_uid}")
+        db = firestore.client()
+        users_ref = db.collection('users')
+        user_data = None
+
+        # Try to get the document with the matching Firebase UID
+        try:
+            doc_ref = users_ref.document(firebase_uid)
+            doc = doc_ref.get()
+            if doc.exists:
+                doc_data = doc.to_dict()
+                print(f"Document data found for UID {firebase_uid}: {doc_data}")
+                user_data = {
+                    'email': doc_data.get('email'),
+                    'username': doc_data.get('username'),
+                    'school': doc_data.get('school')
+                }
+                print(f"User data extracted: {user_data}")
+            else:
+                print(f"No document found for UID {firebase_uid}")
+        except Exception as e:
+            print(f"Exception occurred while fetching data from Firestore for UID {firebase_uid}: {e}")
+
+        return user_data
 
     
 class GroupChats(models.Model):
