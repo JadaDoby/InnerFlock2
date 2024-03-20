@@ -3,7 +3,7 @@ from myapp import views  # Import views from the same directory
 from .views import verify_token
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.signin, name='signin'),
     path('homepage/', views.homepage, name='homepage'),
     path('signup/' , views.signup, name='signup'),
     path('search' , views.search, name='search'),

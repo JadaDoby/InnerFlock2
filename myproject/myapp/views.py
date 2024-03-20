@@ -72,10 +72,10 @@ def homepage(request):
     return render(request, 'myapp/homepage.html', {'group_chats': group_chats})
 
 @never_cache
-def home(request):
+def signin(request):
     if request.user.is_authenticated:
         return redirect('homepage')
-    return render(request, 'myapp/home.html', {}) 
+    return render(request, 'myapp/signin.html', {}) 
 
 
 def signup(request):
