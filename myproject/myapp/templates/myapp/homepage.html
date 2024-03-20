@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,113 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-jp4pRl9N0B5vaFuoynmZVf6IHxMw5FeqEIKnxwrsg39JSKzQ+xr2F6tBiPHFeCuYJnY0X5hSlcOeyH9BBP7ULw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Homepage!</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        nav {
-            background-color: #000000;
-            overflow: hidden;
-            text-align: center;
-            display: flex;
-            justify-content: center; /* Center the items horizontally */
-        }
-
-        nav a {
-            display: inline-block;
-            color: white;
-            text-align: center;
-            padding: 20px 30px;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        nav a:hover {
-            background-color: #555;
-        }
-
-        .box-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-gap: 20px;
-            margin: 20px;
-        }
-
-        .box {
-            background-color: #ddd;
-            padding: 60px;
-            text-align: center;
-            transition: background-color 0.3s;
-            position: relative;
-        }
-        
-        .box:hover {
-            background-color: #bbb;
-        }
-        
-        .box a {
-            display: block;
-            height: 100%;
-            width: 100%;
-            color: inherit;
-            text-decoration: none;
-            font-size: 20px;
-        }
-        header {
-            background-color: #000000;
-            color: white;
-            text-align: center;
-            padding: 10px;
-        }
-        h1{
-            text-align: center;
-        }
-
-        
-        .box i {
-            font-size: 24px;
-        }
-        
-
-        main {
-            flex: 1;
-        }
-       
-        footer a i {
-           font-size: 24px;
-          color: #ffffff; /* Change the color to your desired color */
-                }
-
-
-        footer {
-            background-color: #000000;
-            padding: 20px;
-            text-align: center;
-            color: white;
-            margin-top: auto;
-        }
-
-        footer a {
-            color: white;
-            margin: 0 10px;
-            font-size: 24px;
-        }
-        @media (max-width: 600px) {
-            .box {
-                padding: 40px; /* Adjust padding for smaller screens */
-            }
-        }
-
-        /* Added style for page content */
-        .page-content {
-            padding: 10px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    
 </head>
 <body>
     <!-- Include Firebase JS SDK (compat version) -->
@@ -181,10 +77,20 @@
     // Wait for Firebase authentication state to change
     firebase.auth().onAuthStateChanged(user => {});
     </script>
+    <script>
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (!user) {
+            window.location.href = '/signin/';
+          } else {
+            // User is signed in. Optionally, you can add logic here to handle a signed-in user.
+          }
+        });
+      </script>
+
     <nav>
-        <a href="groupchatPage">My Groups</a>
-        <a href="privatechat.html">My Private Chats</a>
-        <a href="profile.html">Profile</a>
+        <a href="{% url 'groupchatPage' %}">My Groups</a>
+        <a href="{% url 'privatechat' %}">My Private Chats</a>
+        <a href="{% url 'profile' %}">Profile</a>
     </nav>
     
     <!-- Page Content -->

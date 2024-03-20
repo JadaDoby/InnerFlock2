@@ -13,8 +13,8 @@ from firebase_admin import firestore
 from .models import GroupChats  
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
-
-db = firestore.client()
+from django.http import HttpResponse
+from .decorators import firebase_login_required  # Import your custom decorator
 
 # Assuming you have access to the Firebase UID and the Django user instance
 def save_user_profile(user, firebase_uid):
@@ -44,7 +44,6 @@ def add_user_to_group_chat(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-@login_required(login_url='')
 def homepage(request):
     # Retrieve group chat data from Firestore
     db = firestore.client()
@@ -73,8 +72,6 @@ def homepage(request):
 
 @never_cache
 def signin(request):
-    if request.user.is_authenticated:
-        return redirect('homepage')
     return render(request, 'myapp/signin.html', {}) 
 
 
@@ -146,6 +143,7 @@ def profile(request):
         firestore_data = {}
     
     return render(request, 'myapp/profile.html', {'user_profile_data': firestore_data})
+    # return HttpResponse("This is the protected profile page.")
 
 
 def privatechat(request):
@@ -156,7 +154,3 @@ def privatechat(request):
 
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
-
-@never_cache
-def logout(request):
-    auth_logout(request)
