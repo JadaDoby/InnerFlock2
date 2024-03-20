@@ -167,15 +167,24 @@ def profile(request):
 
 @login_required
 def profile(request):
+    print("Current user:", request.user)
+    print(f"Email for Firestore Query: '{request.user.email}'")
     try:
-        # Fetch data from Firestore for the current user
-        current_user_profile = UserProfile.objects.get(user=request.user)
-        firestore_data = [current_user_profile.get_firestore_data()]  # Retrieve data for current user only
-    except UserProfile.DoesNotExist:
-        # Handle the case where UserProfile does not exist for the current user
-        firestore_data = []
+        firebase_uid = str(request.user.username)
+        firestore_data = UserProfile.get_data_from_firestore(firebase_uid)
+        
+        if firestore_data:
+            # Print the email, school, and username
+            print(f"Email: {firestore_data['email']}, School: {firestore_data['school']}, Username: {firestore_data['username']}")
+        else:
+            print("No data found for the current user in Firestore.")
+            
+    except Exception as e:
+        print(f"Failed to fetch data from Firestore: {e}")
+        firestore_data = {}
     
-    return render(request, 'myapp/profile.html', {'firestore_data': firestore_data})
+    return render(request, 'myapp/profile.html', {'user_profile_data': firestore_data})
+
 
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
