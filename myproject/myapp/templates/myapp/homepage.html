@@ -108,15 +108,7 @@
     </div>
 
     <!-- Search Results Container -->
-    <div
-      id="chat-list"
-      style="
-        border: 1px solid black;
-        margin-bottom: 10px;
-        padding: 10px;
-        cursor: pointer;
-      "
-    >
+    <div id="chat-list">
       <!-- Search results will be inserted here -->
     </div>
 
@@ -124,9 +116,8 @@
       // Search handler function
       function searchGroupChats(query) {
         const db = firebase.firestore();
-        console.log("Searching for:", query);
+        console.log("Searching for:", query.toLowerCase());
         db.collection("group_chats")
-          .where("name", "==", query)
           .get()
           .then((querySnapshot) => {
             const originalChatListDiv =
@@ -136,28 +127,44 @@
             if (originalChatListDiv) originalChatListDiv.innerHTML = "";
             if (chatListDiv) chatListDiv.innerHTML = "";
 
-            // Loop through the results and create new elements for each chat.
-            querySnapshot.forEach((doc) => {
+            // Filter results client-side for case-insensitive partial matches
+            const filteredResults = querySnapshot.docs.filter((doc) =>
+              doc.data().name.toLowerCase().includes(query.toLowerCase())
+            );
+
+            // Loop through the filtered results and create new elements for each chat.
+            filteredResults.forEach((doc) => {
               const chatData = doc.data();
               const chatDiv = document.createElement("div");
+
+              // Inline styling
+              chatDiv.style.border = "1px solid black";
+              chatDiv.style.marginBottom = "10px";
+              chatDiv.style.marginTop = "10px";
+              chatDiv.style.padding = "10px";
+              chatDiv.style.cursor = "pointer";
+              chatDiv.style.backgroundColor = "#f0f0f0"; // Example of styling
+
+              // Set class name for the chat div
               chatDiv.className = "chat";
-              chatDiv.innerHTML = `
-                        <h3>${chatData.name}</h3>
-                        <p>${chatData.description}</p>
-                    `;
+
+              chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
+
+              // Adding click event listener
               chatDiv.addEventListener("click", () =>
                 handleGroupChatClick(doc.id, chatData.groupMembers)
               );
-              // Add the new chat div to the chat list in the DOM.
+
+              // Append the new chat div to the chat list in the DOM.
               chatListDiv.appendChild(chatDiv);
             });
 
-            if (querySnapshot.size === 0) {
+            if (filteredResults.length === 0) {
               chatListDiv.innerHTML = "<p>No results found.</p>";
             }
           })
           .catch((error) => {
-            console.log("Error getting documents: ", error);
+            console.error("Error getting documents: ", error);
           });
       }
 
@@ -166,13 +173,53 @@
         .getElementById("search-form")
         .addEventListener("submit", function (e) {
           e.preventDefault();
-          const query = document.getElementById("search-input").value;
-          if (query.trim() !== "") {
-            searchGroupChats(query.trim());
+          const query = document.getElementById("search-input").value.trim();
+
+          // Check if the query is empty
+          if (query === "") {
+            // Code to reload original chats
+            loadOriginalChats();
           } else {
-            console.log("Empty search query");
+            // Perform search with query
+            searchGroupChats(query);
           }
         });
+      // Function to reload original chats
+      function loadOriginalChats() {
+        const db = firebase.firestore();
+        db.collection("group_chats")
+          .get()
+          .then((querySnapshot) => {
+            const chatListDiv = document.getElementById("chat-list");
+            chatListDiv.innerHTML = ""; // Clear current search results or previous chats
+
+            // Loop through the chats and recreate the original chat list
+            querySnapshot.forEach((doc) => {
+              const chatData = doc.data();
+              const chatDiv = document.createElement("div");
+
+              // Apply inline styling as before or set class name
+              chatDiv.style.border = "1px solid black";
+              chatDiv.style.marginBottom = "10px";
+              chatDiv.style.padding = "10px";
+              chatDiv.style.cursor = "pointer";
+              chatDiv.style.backgroundColor = "#f0f0f0";
+
+              chatDiv.className = "chat";
+              chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
+
+              chatDiv.addEventListener("click", () =>
+                handleGroupChatClick(doc.id, chatData.groupMembers)
+              );
+
+              // Append the new chat div to the chat list in the DOM.
+              chatListDiv.appendChild(chatDiv);
+            });
+          })
+          .catch((error) => {
+            console.error("Error getting documents: ", error);
+          });
+      }
     </script>
 
     <!-- Box Grid -->
@@ -181,6 +228,7 @@
       <div
         style="
           border: 1px solid black;
+          margin-top: 10px;
           margin-bottom: 10px;
           padding: 10px;
           cursor: pointer;
