@@ -108,57 +108,75 @@
     </div>
 
     <!-- Search Results Container -->
-    <div id="chat-list">
-        <!-- Search results will be inserted here -->
+    <div
+      id="chat-list"
+      style="
+        border: 1px solid black;
+        margin-bottom: 10px;
+        padding: 10px;
+        cursor: pointer;
+      "
+    >
+      <!-- Search results will be inserted here -->
     </div>
 
     <script>
-          // Search handler function
-        function searchGroupChats(query) {
-            const db = firebase.firestore();
-            console.log('Searching for:', query);
-            db.collection('group_chats').where('name', '==', query).get()
-            .then((querySnapshot) => {
-                const chatListDiv = document.getElementById('chat-list');
-                chatListDiv.innerHTML = '';
+      // Search handler function
+      function searchGroupChats(query) {
+        const db = firebase.firestore();
+        console.log("Searching for:", query);
+        db.collection("group_chats")
+          .where("name", "==", query)
+          .get()
+          .then((querySnapshot) => {
+            const originalChatListDiv =
+              document.getElementById("original-chat-list");
+            const chatListDiv = document.getElementById("chat-list");
 
-                // Loop through the results and create new elements for each chat.
-                querySnapshot.forEach((doc) => {
-                    const chatData = doc.data();
-                    const chatDiv = document.createElement('div');
-                    chatDiv.className = 'chat';
-                    chatDiv.innerHTML = `
+            if (originalChatListDiv) originalChatListDiv.innerHTML = "";
+            if (chatListDiv) chatListDiv.innerHTML = "";
+
+            // Loop through the results and create new elements for each chat.
+            querySnapshot.forEach((doc) => {
+              const chatData = doc.data();
+              const chatDiv = document.createElement("div");
+              chatDiv.className = "chat";
+              chatDiv.innerHTML = `
                         <h3>${chatData.name}</h3>
                         <p>${chatData.description}</p>
                     `;
-                    chatDiv.addEventListener('click', () => handleGroupChatClick(doc.id, chatData.groupMembers));
-                    // Add the new chat div to the chat list in the DOM.
-                    chatListDiv.appendChild(chatDiv);
-                });
+              chatDiv.addEventListener("click", () =>
+                handleGroupChatClick(doc.id, chatData.groupMembers)
+              );
+              // Add the new chat div to the chat list in the DOM.
+              chatListDiv.appendChild(chatDiv);
+            });
 
-                if (querySnapshot.size === 0) {
-                    chatListDiv.innerHTML = '<p>No results found.</p>';
-                }
-            })
-              .catch((error) => {
-                  console.log("Error getting documents: ", error);
-              });
-          }
-
-          // Event listener for the search form
-          document.getElementById('search-form').addEventListener('submit', function(e) {
-              e.preventDefault();
-              const query = document.getElementById('search-input').value;
-              if (query.trim() !== '') {
-                  searchGroupChats(query.trim());
-              } else {
-                  console.log('Empty search query');
-              }
+            if (querySnapshot.size === 0) {
+              chatListDiv.innerHTML = "<p>No results found.</p>";
+            }
+          })
+          .catch((error) => {
+            console.log("Error getting documents: ", error);
           });
+      }
+
+      // Event listener for the search form
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const query = document.getElementById("search-input").value;
+          if (query.trim() !== "") {
+            searchGroupChats(query.trim());
+          } else {
+            console.log("Empty search query");
+          }
+        });
     </script>
 
     <!-- Box Grid -->
-    <div>
+    <div id="original-chat-list">
       {% for chat in group_chats %}
       <div
         style="
