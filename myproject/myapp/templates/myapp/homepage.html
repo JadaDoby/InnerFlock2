@@ -1,24 +1,25 @@
 <!-- myapp/templates/myapp/homepage.html -->
-{% extends 'myapp/base.html' %}
-{% load static %}
-
-{% block content %}
+{% extends 'myapp/base.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Homepage!</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
-    
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'myapp/css/styles.css' %}"
+    />
+  </head>
+  <body>
     <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script> <!-- need to import firestore not realtime db -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- need to import firestore not realtime db -->
     <script>
-        // Firebase configuration
+      // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
         authDomain: "innerflock-d05ee.firebaseapp.com",
@@ -32,92 +33,149 @@
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
 
+      // JavaScript function to handle click event on group chat div
+      const handleGroupChatClick = (groupChatId, groupMembers) => {
+        const user = firebase.auth().currentUser;
+        var db = firebase.firestore();
 
-        // JavaScript function to handle click event on group chat div
-        const handleGroupChatClick = (groupChatId, groupMembers) => {
-            const user = firebase.auth().currentUser;
-            var db = firebase.firestore()
+        if (user) {
+          const currentUserID = user.uid;
+          var isMember = false;
 
-            if (user){
-                const currentUserID = user.uid
-                var isMember = false;
-
-                // Store group chats data in a JavaScript variable
-                for (let member in groupMembers){
-                    if (currentUserID === groupMembers[member]){
-                        isMember = true;
-                    }
-                }
-                
-                if (isMember){
-                    // If user is a member, route user to the chat room
-                    window.location.href = "/homepage/chatroom/" + groupChatId;
-                }
-                else{
-                    // does user want to join
-                    const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
-                    if (joinConfirmation) {
-                        try{
-                            var updates = {
-                                groupMembers: groupMembers.push(currentUserID)      //this is not adding to database, fix later
-                            }
-                            db.ref('group_chats/' + groupChatId).update(updates)
-
-                            window.location.href = "homepage/chatroom/" + groupChatId;
-                        }
-                        catch (error) {
-                            console.error('Error:', error);
-                            alert("An unexpected error occurred. Please try again later.");
-                        }
-                    }
-                }
+          // Store group chats data in a JavaScript variable
+          for (let member in groupMembers) {
+            if (currentUserID === groupMembers[member]) {
+              isMember = true;
             }
-            else {
-                // user not signed in 
-                alert("Please sign in to access group chats.");
+          }
+
+          if (isMember) {
+            // If user is a member, route user to the chat room
+            window.location.href = "/homepage/chatroom/" + groupChatId;
+          } else {
+            // does user want to join
+            const joinConfirmation = confirm(
+              "You are not a member of this group chat. Do you want to join?"
+            );
+            if (joinConfirmation) {
+              try {
+                var updates = {
+                  groupMembers: groupMembers.push(currentUserID), //this is not adding to database, fix later
+                };
+                db.ref("group_chats/" + groupChatId).update(updates);
+
+                window.location.href = "homepage/chatroom/" + groupChatId;
+              } catch (error) {
+                console.error("Error:", error);
+                alert("An unexpected error occurred. Please try again later.");
+              }
             }
-        };
-    // Wait for Firebase authentication state to change
-    firebase.auth().onAuthStateChanged(user => {});
+          }
+        } else {
+          // user not signed in
+          alert("Please sign in to access group chats.");
+        }
+      };
+      // Wait for Firebase authentication state to change
+      firebase.auth().onAuthStateChanged((user) => {});
     </script>
     <script>
-        firebase.auth().onAuthStateChanged(function(user) {
-          if (!user) {
-            window.location.href = '/signin/';
-          } else {
-            // User is signed in. Optionally, you can add logic here to handle a signed-in user.
-          }
-        });
-      </script>
-    
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/signin/";
+        } else {
+          // User is signed in. Optionally, you can add logic here to handle a signed-in user.
+        }
+      });
+    </script>
+
     <!-- Page Content -->
     <div class="page-content">
-        <!-- <h1>Welcome to InnerFlock! </h1> -->
-        <div class="carousel-container">
-            <div class="search-container">
-                <input type="text" placeholder="Search..." name="search">
-                <button type="submit">Search</button>
-            </div>
-        </div>  
+      <!-- <h1>Welcome to InnerFlock! </h1> -->
+      <div class="carousel-container">
+        <form id="search-form">
+          <div class="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              id="search-input"
+              name="search"
+            />
+            <button type="submit">Search</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-   <!-- Box Grid -->
-   <div>
-        {% for chat in group_chats %}
-        <div 
-            style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
-            onclick="handleGroupChatClick('{{ chat.id }}', {{ chat.groupMembers }})"
-        >                                              
-            <h3>{{ chat.name }}</h3>
-            <p>{{ chat.description }}</p>
-            <p>{{ chat.id }}</p>
-        </div>
-        {% endfor %}
+    <!-- Search Results Container -->
+    <div id="chat-list">
+        <!-- Search results will be inserted here -->
     </div>
 
-    
+    <script>
+          // Search handler function
+        function searchGroupChats(query) {
+            const db = firebase.firestore();
+            console.log('Searching for:', query);
+            db.collection('group_chats').where('name', '==', query).get()
+            .then((querySnapshot) => {
+                const chatListDiv = document.getElementById('chat-list');
+                chatListDiv.innerHTML = '';
 
-</body>
+                // Loop through the results and create new elements for each chat.
+                querySnapshot.forEach((doc) => {
+                    const chatData = doc.data();
+                    const chatDiv = document.createElement('div');
+                    chatDiv.className = 'chat';
+                    chatDiv.innerHTML = `
+                        <h3>${chatData.name}</h3>
+                        <p>${chatData.description}</p>
+                    `;
+                    chatDiv.addEventListener('click', () => handleGroupChatClick(doc.id, chatData.groupMembers));
+                    // Add the new chat div to the chat list in the DOM.
+                    chatListDiv.appendChild(chatDiv);
+                });
+
+                if (querySnapshot.size === 0) {
+                    chatListDiv.innerHTML = '<p>No results found.</p>';
+                }
+            })
+              .catch((error) => {
+                  console.log("Error getting documents: ", error);
+              });
+          }
+
+          // Event listener for the search form
+          document.getElementById('search-form').addEventListener('submit', function(e) {
+              e.preventDefault();
+              const query = document.getElementById('search-input').value;
+              if (query.trim() !== '') {
+                  searchGroupChats(query.trim());
+              } else {
+                  console.log('Empty search query');
+              }
+          });
+    </script>
+
+    <!-- Box Grid -->
+    <div>
+      {% for chat in group_chats %}
+      <div
+        style="
+          border: 1px solid black;
+          margin-bottom: 10px;
+          padding: 10px;
+          cursor: pointer;
+        "
+        onclick="handleGroupChatClick('{{ chat.id }}', {{ chat.groupMembers }})"
+      >
+        <h3>{{ chat.name }}</h3>
+        <p>{{ chat.description }}</p>
+        <p>{{ chat.id }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
 </html>
 
 {% endblock %}
