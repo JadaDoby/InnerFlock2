@@ -1,24 +1,25 @@
-{% extends 'myapp/base.html' %}
-{% load static %}
-
-{% block content %}
+<!-- myapp/templates/myapp/homepage.html -->
+{% extends 'myapp/base.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-jp4pRl9N0B5vaFuoynmZVf6IHxMw5FeqEIKnxwrsg39JSKzQ+xr2F6tBiPHFeCuYJnY0X5hSlcOeyH9BBP7ULw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Homepage!</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
-    
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'myapp/css/styles.css' %}"
+    />
+  </head>
+  <body>
     <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script> <!-- need to import firestore not realtime db -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- need to import firestore not realtime db -->
     <script>
-        // Firebase configuration
+      // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
         authDomain: "innerflock-d05ee.firebaseapp.com",
@@ -32,86 +33,215 @@
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
 
+      // JavaScript function to handle click event on group chat div
+      const handleGroupChatClick = (groupChatId, groupMembers) => {
+        const user = firebase.auth().currentUser;
+        var db = firebase.firestore();
 
-        // JavaScript function to handle click event on group chat div
-        const handleGroupChatClick = (groupChatId, groupMembers) => {
-            const user = firebase.auth().currentUser;
-            var db = firebase.firestore()
+        if (user) {
+          const currentUserID = user.uid;
+          var isMember = false;
 
-            if (user){
-                const currentUserID = user.uid
-                var isMember = false;
-
-                // Store group chats data in a JavaScript variable
-                for (let member in groupMembers){
-                    if (currentUserID === groupMembers[member]){
-                        isMember = true;
-                    }
-                }
-                
-                if (isMember){
-                    // If user is a member, route user to the chat room
-                    window.location.href = "/homepage/chatroom/" + groupChatId;
-                }
-                else{
-                    // does user want to join
-                    const joinConfirmation = confirm("You are not a member of this group chat. Do you want to join?");
-                    if (joinConfirmation) {
-                        try{
-                            var updates = {
-                                groupMembers: groupMembers.push(currentUserID)      //this is not adding to database, fix later
-                            }
-                            db.ref('group_chats/' + groupChatId).update(updates)
-
-                            window.location.href = "homepage/chatroom/" + groupChatId;
-                        }
-                        catch (error) {
-                            console.error('Error:', error);
-                            alert("An unexpected error occurred. Please try again later.");
-                        }
-                    }
-                }
+          // Store group chats data in a JavaScript variable
+          for (let member in groupMembers) {
+            if (currentUserID === groupMembers[member]) {
+              isMember = true;
             }
-            else {
-                // user not signed in 
-                alert("Please sign in to access group chats.");
+          }
+
+          if (isMember) {
+            // If user is a member, route user to the chat room
+            window.location.href = "/homepage/chatroom/" + groupChatId;
+          } else {
+            // does user want to join
+            const joinConfirmation = confirm(
+              "You are not a member of this group chat. Do you want to join?"
+            );
+            if (joinConfirmation) {
+              try {
+                var updates = {
+                  groupMembers: groupMembers.push(currentUserID), //this is not adding to database, fix later
+                };
+                db.ref("group_chats/" + groupChatId).update(updates);
+
+                window.location.href = "homepage/chatroom/" + groupChatId;
+              } catch (error) {
+                console.error("Error:", error);
+                alert("An unexpected error occurred. Please try again later.");
+              }
             }
-        };
-    // Wait for Firebase authentication state to change
-    firebase.auth().onAuthStateChanged(user => {});
+          }
+        } else {
+          // user not signed in
+          alert("Please sign in to access group chats.");
+        }
+      };
+      // Wait for Firebase authentication state to change
+      firebase.auth().onAuthStateChanged((user) => {});
     </script>
     <script>
-        firebase.auth().onAuthStateChanged(function(user) {
-          if (!user) {
-            window.location.href = '/signin/';
-          } else {
-            // User is signed in. Optionally, you can add logic here to handle a signed-in user.
-          }
-        });
-      </script>
-    
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/signin/";
+        } else {
+          // User is signed in. Optionally, you can add logic here to handle a signed-in user.
+        }
+      });
+    </script>
+
     <!-- Page Content -->
     <div class="page-content">
-        <h1>Welcome to InnerFlock! </h1>
+      <!-- <h1>Welcome to InnerFlock! </h1> -->
+      <div class="carousel-container">
+        <form id="search-form">
+          <div class="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              id="search-input"
+              name="search"
+            />
+            <button type="submit">Search</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-   <!-- Box Grid -->
-   <div>
-        {% for chat in group_chats %}
-        <div 
-            style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
-            onclick="handleGroupChatClick('{{ chat.id }}', {{chat.groupMembers}})"
-        >                                              
-            <h3>{{ chat.name }}</h3>
-            <p>{{ chat.description }}</p>
-            <p>{{ chat.id }}</p>
-        </div>
-        {% endfor %}
+    <!-- Search Results Container -->
+    <div id="chat-list">
+      <!-- Search results will be inserted here -->
     </div>
 
-    
+    <script>
+      // Search handler function
+      function searchGroupChats(query) {
+        const db = firebase.firestore();
+        console.log("Searching for:", query.toLowerCase());
+        db.collection("group_chats")
+          .get()
+          .then((querySnapshot) => {
+            const originalChatListDiv =
+              document.getElementById("original-chat-list");
+            const chatListDiv = document.getElementById("chat-list");
 
-</body>
+            if (originalChatListDiv) originalChatListDiv.innerHTML = "";
+            if (chatListDiv) chatListDiv.innerHTML = "";
+
+            // Filter results client-side for case-insensitive partial matches
+            const filteredResults = querySnapshot.docs.filter((doc) =>
+              doc.data().name.toLowerCase().includes(query.toLowerCase())
+            );
+
+            // Loop through the filtered results and create new elements for each chat.
+            filteredResults.forEach((doc) => {
+              const chatData = doc.data();
+              const chatDiv = document.createElement("div");
+
+              // Inline styling
+              chatDiv.style.border = "1px solid black";
+              chatDiv.style.marginBottom = "10px";
+              chatDiv.style.marginTop = "10px";
+              chatDiv.style.padding = "10px";
+              chatDiv.style.cursor = "pointer";
+              chatDiv.style.backgroundColor = "#f0f0f0"; // Example of styling
+
+              // Set class name for the chat div
+              chatDiv.className = "chat";
+
+              chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
+
+              // Adding click event listener
+              chatDiv.addEventListener("click", () =>
+                handleGroupChatClick(doc.id, chatData.groupMembers)
+              );
+
+              // Append the new chat div to the chat list in the DOM.
+              chatListDiv.appendChild(chatDiv);
+            });
+
+            if (filteredResults.length === 0) {
+              chatListDiv.innerHTML = "<p>No results found.</p>";
+            }
+          })
+          .catch((error) => {
+            console.error("Error getting documents: ", error);
+          });
+      }
+
+      // Event listener for the search form
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const query = document.getElementById("search-input").value.trim();
+
+          // Check if the query is empty
+          if (query === "") {
+            // Code to reload original chats
+            loadOriginalChats();
+          } else {
+            // Perform search with query
+            searchGroupChats(query);
+          }
+        });
+      // Function to reload original chats
+      function loadOriginalChats() {
+        const db = firebase.firestore();
+        db.collection("group_chats")
+          .get()
+          .then((querySnapshot) => {
+            const chatListDiv = document.getElementById("chat-list");
+            chatListDiv.innerHTML = ""; // Clear current search results or previous chats
+
+            // Loop through the chats and recreate the original chat list
+            querySnapshot.forEach((doc) => {
+              const chatData = doc.data();
+              const chatDiv = document.createElement("div");
+
+              // Apply inline styling as before or set class name
+              chatDiv.style.border = "1px solid black";
+              chatDiv.style.marginBottom = "10px";
+              chatDiv.style.padding = "10px";
+              chatDiv.style.cursor = "pointer";
+              chatDiv.style.backgroundColor = "#f0f0f0";
+
+              chatDiv.className = "chat";
+              chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
+
+              chatDiv.addEventListener("click", () =>
+                handleGroupChatClick(doc.id, chatData.groupMembers)
+              );
+
+              // Append the new chat div to the chat list in the DOM.
+              chatListDiv.appendChild(chatDiv);
+            });
+          })
+          .catch((error) => {
+            console.error("Error getting documents: ", error);
+          });
+      }
+    </script>
+
+    <!-- Box Grid -->
+    <div id="original-chat-list">
+      {% for chat in group_chats %}
+      <div
+        style="
+          border: 1px solid black;
+          margin-top: 10px;
+          margin-bottom: 10px;
+          padding: 10px;
+          cursor: pointer;
+        "
+        onclick="handleGroupChatClick('{{ chat.id }}', {{ chat.groupMembers }})"
+      >
+        <h3>{{ chat.name }}</h3>
+        <p>{{ chat.description }}</p>
+        <p>{{ chat.id }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
 </html>
 
 {% endblock %}
