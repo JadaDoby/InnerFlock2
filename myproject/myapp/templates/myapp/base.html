@@ -2,12 +2,15 @@
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'myapp/images/favicon.ico' %}">
 </head>
 <body>
     <nav>
         <a href="{% url 'groupchatPage' %}">My Groups</a>
         <a href="{% url 'privatechat' %}">My Private Chats</a>
         <a href="{% url 'profile' %}">Profile</a>
+        <input type="text" placeholder="Search..">
+        <button type="submit" style="border: rgb(199, 18, 18) solid 1px; margin: 6px;"><i class="fa fa-search" style=""></i></button>
     </nav>
 </body>
 
