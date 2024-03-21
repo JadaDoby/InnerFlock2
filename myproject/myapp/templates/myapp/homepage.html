@@ -1,3 +1,4 @@
+<!-- myapp/templates/myapp/homepage.html -->
 {% extends 'myapp/base.html' %}
 {% load static %}
 
@@ -7,7 +8,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-jp4pRl9N0B5vaFuoynmZVf6IHxMw5FeqEIKnxwrsg39JSKzQ+xr2F6tBiPHFeCuYJnY0X5hSlcOeyH9BBP7ULw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
     <title>Homepage!</title>
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
     
@@ -92,7 +92,13 @@
     
     <!-- Page Content -->
     <div class="page-content">
-        <h1>Welcome to InnerFlock! </h1>
+        <!-- <h1>Welcome to InnerFlock! </h1> -->
+        <div class="carousel-container">
+            <div class="search-container">
+                <input type="text" placeholder="Search..." name="search">
+                <button type="submit">Search</button>
+            </div>
+        </div>  
     </div>
 
    <!-- Box Grid -->
@@ -100,7 +106,7 @@
         {% for chat in group_chats %}
         <div 
             style="border: 1px solid black; margin-bottom: 10px; padding: 10px; cursor: pointer;" 
-            onclick="handleGroupChatClick('{{ chat.id }}', {{chat.groupMembers}})"
+            onclick="handleGroupChatClick('{{ chat.id }}', {{ chat.groupMembers }})"
         >                                              
             <h3>{{ chat.name }}</h3>
             <p>{{ chat.description }}</p>
