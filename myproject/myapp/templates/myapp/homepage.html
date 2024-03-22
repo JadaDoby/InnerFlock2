@@ -64,7 +64,7 @@
                 };
                 db.ref("group_chats/" + groupChatId).update(updates);
 
-                window.location.href = "homepage/chatroom/" + groupChatId;
+                window.location.href = "/homepage/chatroom/" + groupChatId;
               } catch (error) {
                 console.error("Error:", error);
                 alert("An unexpected error occurred. Please try again later.");
