@@ -11,15 +11,16 @@
       type="text/css"
       href="{% static 'myapp/css/styles.css' %}"
     />
-  </head>
-  <body>
+
+
+
     <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <!-- need to import firestore not realtime db -->
     <script>
-      // Firebase configuration
+        // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
         authDomain: "innerflock-d05ee.firebaseapp.com",
@@ -32,7 +33,10 @@
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
-
+    </script>
+  </head>
+  <body>
+    <script>
       // JavaScript function to handle click event on group chat div
       const handleGroupChatClick = (groupChatId, groupMembers) => {
         const user = firebase.auth().currentUser;
@@ -59,14 +63,18 @@
             );
             if (joinConfirmation) {
               try {
-                var updates = {
-                  groupMembers: groupMembers.push(currentUserID), //this is not adding to database, fix later
-                };
-                db.ref("group_chats/" + groupChatId).update(updates);
+                // Add the current user ID to the group members array
+                groupMembers.push(currentUserID);
+                
+                // Update the group chat document in Firestore
+                db.collection("group_chats").doc(groupChatId).update({
+                groupMembers: groupMembers
+                });
 
                 window.location.href = "/homepage/chatroom/" + groupChatId;
               } catch (error) {
                 console.error("Error:", error);
+                console.log(error);
                 alert("An unexpected error occurred. Please try again later.");
               }
             }
