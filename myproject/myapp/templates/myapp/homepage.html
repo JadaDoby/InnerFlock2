@@ -1,23 +1,38 @@
-<!-- myapp/templates/myapp/homepage.html -->
-{% extends 'myapp/base.html' %} {% load static %} {% block content %}
+{% extends 'myapp/base.html' %}
+{% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage!</title>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'myapp/css/styles.css' %}"
-    />
-  </head>
-  <body>
-    <!-- Include Firebase JS SDK (compat version) -->
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+</head>
+<body>
+    <div class="page-content">
+        <div class="carousel-container">
+            <form id="search-form">
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." id="search-input" name="search" />
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="chat-list">
+        <!-- Search results or original chats will be inserted here -->
+    </div>
+
+    <div id="chatControls" style="display: none;">
+        <button id="createChatButton">Create Chat</button>
+        <button id="deleteChatButton">Delete Chat</button>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <!-- need to import firestore not realtime db -->
     <script>
       // Firebase configuration
       const firebaseConfig = {
@@ -79,33 +94,83 @@
       // Wait for Firebase authentication state to change
       firebase.auth().onAuthStateChanged((user) => {});
     </script>
-    <script>
-      firebase.auth().onAuthStateChanged(function (user) {
-        if (!user) {
-          window.location.href = "/signin/";
-        } else {
-          // User is signed in. Optionally, you can add logic here to handle a signed-in user.
-        }
-      });
-    </script>
+   <script>
+    let createChatListenerAdded = false;
+    let deleteChatListenerAdded = false;
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (!user) {
+        window.location.href = "/signin/";
+      } else {
+        const db = firebase.firestore();
+        const currentUser = firebase.auth().currentUser;
 
-    <!-- Page Content -->
-    <div class="page-content">
-      <!-- <h1>Welcome to InnerFlock! </h1> -->
-      <div class="carousel-container">
-        <form id="search-form">
-          <div class="search-container">
-            <input
-              type="text"
-              placeholder="Search..."
-              id="search-input"
-              name="search"
-            />
-            <button type="submit">Search</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        if (currentUser) {
+          // Get the user's role from Firestore
+          db.collection("users")
+            .doc(currentUser.uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                const userRole = doc.data().role;
+                if (userRole === 'hiring_manager') {
+                  document.getElementById('chatControls').style.display = 'block';
+                  if (!createChatListenerAdded) {
+                    // Event listener for the create chat button
+                    document.getElementById('createChatButton').addEventListener('click', () => {
+                      const chatName = prompt("Enter the chat name:");
+                      const chatDescription = prompt("Enter the chat description:");
+                      const currentUserID = firebase.auth().currentUser.uid; // Get the current user's ID as group admin
+                      const groupMembers = [currentUserID]; // Initialize an array with the current user as a member
+
+                      // Check if the chat name and description are not empty
+                      if (chatName && chatDescription) {
+                        // Call the function to create a new chat with the provided information
+                        createNewChat(chatName, chatDescription, currentUserID, groupMembers);
+                      } else {
+                        alert("Chat name and description are required!");
+                      }
+                    });
+                    createChatListenerAdded = true;
+                  }
+                } else {
+                  document.getElementById('chatControls').style.display = 'none';
+                }
+              } else {
+                console.log("No such document!");
+              }
+            })
+            .catch((error) => {
+              console.error("Error getting document:", error);
+            });
+        }
+      }
+    });
+
+    // Function to create a new chat
+    function createNewChat(chatName, chatDescription, groupAdmin, groupMembers) {
+      const db = firebase.firestore();
+
+      // Add a new document to the "group_chats" collection
+      db.collection("group_chats")
+        .add({
+          name: chatName,
+          description: chatDescription,
+          groupAdmin: groupAdmin, // Add the group admin's ID
+          groupMembers: groupMembers, // Add an array containing group members' IDs
+        })
+        .then((docRef) => {
+          console.log("Document written with ID: ", docRef.id);
+          // Optionally, you can redirect or perform any other action after creating the chat
+
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error);
+          // Handle the error here, such as displaying an error message to the user
+        });
+    }
+  </script>
+  
+    
 
     <!-- Search Results Container -->
     <div id="chat-list">
@@ -185,41 +250,43 @@
           }
         });
       // Function to reload original chats
-      function loadOriginalChats() {
-        const db = firebase.firestore();
-        db.collection("group_chats")
-          .get()
-          .then((querySnapshot) => {
-            const chatListDiv = document.getElementById("chat-list");
-            chatListDiv.innerHTML = ""; // Clear current search results or previous chats
+      // Function to reload original chats
+function loadOriginalChats() {
+  const db = firebase.firestore();
+  db.collection("group_chats")
+    .get()
+    .then((querySnapshot) => {
+      const chatListDiv = document.getElementById("chat-list");
+      chatListDiv.innerHTML = ""; // Clear current search results or previous chats
 
-            // Loop through the chats and recreate the original chat list
-            querySnapshot.forEach((doc) => {
-              const chatData = doc.data();
-              const chatDiv = document.createElement("div");
+      // Loop through the chats and recreate the original chat list
+      querySnapshot.forEach((doc) => {
+        const chatData = doc.data();
+        const chatDiv = document.createElement("div");
 
-              // Apply inline styling as before or set class name
-              chatDiv.style.border = "1px solid black";
-              chatDiv.style.marginBottom = "10px";
-              chatDiv.style.padding = "10px";
-              chatDiv.style.cursor = "pointer";
-              chatDiv.style.backgroundColor = "#f0f0f0";
+        // Apply inline styling as before or set class name
+        chatDiv.style.border = "1px solid black";
+        chatDiv.style.marginBottom = "10px";
+        chatDiv.style.padding = "10px";
+        chatDiv.style.cursor = "pointer";
+        chatDiv.style.backgroundColor = "#f0f0f0";
 
-              chatDiv.className = "chat";
-              chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
+        chatDiv.className = "chat";
+        chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
 
-              chatDiv.addEventListener("click", () =>
-                handleGroupChatClick(doc.id, chatData.groupMembers)
-              );
+        chatDiv.addEventListener("click", () =>
+          handleGroupChatClick(doc.id, chatData.groupMembers)
+        );
 
-              // Append the new chat div to the chat list in the DOM.
-              chatListDiv.appendChild(chatDiv);
-            });
-          })
-          .catch((error) => {
-            console.error("Error getting documents: ", error);
-          });
-      }
+        // Append the new chat div to the chat list in the DOM.
+        chatListDiv.appendChild(chatDiv);
+      });
+    })
+    .catch((error) => {
+      console.error("Error getting documents: ", error);
+    });
+}
+
     </script>
 
     <!-- Box Grid -->
