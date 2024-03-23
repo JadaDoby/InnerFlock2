@@ -7,9 +7,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage!</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'myapp/css/styles.css' %}"
+    />
+
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
-</head>
-<body>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+  </head>
+  <body>
     <div class="page-content">
         <div class="carousel-container">
             <form id="search-form">
@@ -29,25 +54,7 @@
         <button id="createChatButton">Create Chat</button>
         <button id="deleteChatButton">Delete Chat</button>
     </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script>
-      // Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
-        authDomain: "innerflock-d05ee.firebaseapp.com",
-        projectId: "innerflock-d05ee",
-        storageBucket: "innerflock-d05ee.appspot.com",
-        messagingSenderId: "751941751214",
-        appId: "1:751941751214:web:4a2b792e49087d102b383f",
-        measurementId: "G-6SR6P5VP7R",
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-
       // JavaScript function to handle click event on group chat div
       const handleGroupChatClick = (groupChatId, groupMembers) => {
         const user = firebase.auth().currentUser;
@@ -74,14 +81,18 @@
             );
             if (joinConfirmation) {
               try {
-                var updates = {
-                  groupMembers: groupMembers.push(currentUserID), //this is not adding to database, fix later
-                };
-                db.ref("group_chats/" + groupChatId).update(updates);
+                // Add the current user ID to the group members array
+                groupMembers.push(currentUserID);
+                
+                // Update the group chat document in Firestore
+                db.collection("group_chats").doc(groupChatId).update({
+                groupMembers: groupMembers
+                });
 
                 window.location.href = "/homepage/chatroom/" + groupChatId;
               } catch (error) {
                 console.error("Error:", error);
+                console.log(error);
                 alert("An unexpected error occurred. Please try again later.");
               }
             }
@@ -304,7 +315,6 @@ function loadOriginalChats() {
       >
         <h3>{{ chat.name }}</h3>
         <p>{{ chat.description }}</p>
-        <p>{{ chat.id }}</p>
       </div>
       {% endfor %}
     </div>
