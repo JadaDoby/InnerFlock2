@@ -23,7 +23,6 @@ main {
     padding: 2em;
 }
 
-
 h2 {
     font-size: 2em;
     color: black;
@@ -44,7 +43,6 @@ h3 {
     padding: 1em;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
- 
 }
 
 form {
@@ -79,12 +77,23 @@ button:hover {
     text-align: center;
 }
 
-
-input[type="submit"]:hover {
-    background-color: #0056b3;
+/* Adjustments */
+.signup-box {
+    text-align: center; /* Center align content */
+    margin-left: 0; /* Remove margin-left */
 }
 
-.signup-box {
-    margin-left: 50px;
-     text-align:center;
+/* CSS styles for checkboxes */
+input[type="checkbox"] {
+    display: inline-block; /* Display checkboxes inline */
+    margin-right: 0.5em; /* Add some spacing between checkboxes and labels */
+    vertical-align: middle; /* Align checkboxes vertically with labels */
+    /* Add more styles as needed */
+}
+
+/* Additional styles for labels next to checkboxes */
+label {
+    display: inline-block; /* Ensure labels are inline with checkboxes */
+    vertical-align: middle; /* Align labels vertically with checkboxes */
+    margin-bottom: 0.5em; /* Add some spacing below labels */
 }
