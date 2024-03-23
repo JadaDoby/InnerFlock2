@@ -80,42 +80,33 @@ def signup(request):
   
 @csrf_exempt
 def verify_token(request):
+    """ 
+    Verify the token passed in the request.
+    If the token is valid, authenticate the user.
+    """
     data = json.loads(request.body)
     id_token = data.get('token')
     try:
         decoded_token = firebase_auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        # Extract user information
+        
+         # Extract user information
         email = decoded_token.get('email')
         username = decoded_token.get('name', 'default_username')
         school = 'default_school'  
-        role = 'default_role' 
-
+        
         # Authenticate the user using your custom backend
         user = authenticate(request, uid=uid)
-
         if user:
             login(request, user)
-
-            user_profile, created = UserProfile.objects.get_or_create(user=user, defaults={
-                'firebase_uid': uid,
-                'email': email,
-                'username': username,
-                'school': school,
-                'role': role  
-            })
-            if not created:
-                user_profile.role = role
-                user_profile.save()
-
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False, 'message': 'User does not exist or is inactive'})
     except Exception as e:
-        
+        # Log the error for debugging
         print(e)
         return JsonResponse({'success': False, 'message': 'Failed to authenticate'})
-  
+
 def search(request):
     return render(request, 'myapp/search.html', {})
 
@@ -151,7 +142,7 @@ def profile(request):
     except Exception as e:
         print(f"Failed to fetch data from Firestore: {e}")
         firestore_data = {}
-    
+                                                          
     return render(request, 'myapp/profile.html', {'user_profile_data': firestore_data})
     return HttpResponse("This is the protected profile page.")
 
