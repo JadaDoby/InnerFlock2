@@ -2,7 +2,6 @@
 {% extends 'myapp/base.html' %}
 {% load static %}
 
-
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
@@ -100,6 +99,10 @@
             <th scope="row">School:</th>
             <td>{{ user_profile_data.school }}</td>
           </tr>
+          <tr>
+            <th scope="row">User Role:</th>
+            <td>{{ user_profile_data.role }}</td>
+          </tr>
           {% else %}
           <tr>
             <td colspan="2">No data available</td>
@@ -110,11 +113,7 @@
     </section>
 
     <footer>
-      <a href="javascript:void(0);" onclick="firebaseLogout()">Logout</a>
-      <!-- <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
-      <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-      <a href="javascript:void(0);" onclick="firebaseLogout()">Logout</a> -->
+      <a href="javascript:void(0);" onclick="firebaseLogout()">Logout</a>>
     </footer>
   </body>
 </html>
