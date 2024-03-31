@@ -130,7 +130,13 @@ firebase.auth().onAuthStateChanged(function (user) {
                 // Event listener for the create chat button
                 document.getElementById('createChatButton').addEventListener('click', () => {
                   const chatName = prompt("Enter the chat name:");
+                  if (chatName === null) {
+                    return; // Exit if user clicked "Cancel" for chat name
+                  }
                   const chatDescription = prompt("Enter the chat description:");
+                  if (chatDescription === null) {
+                      return; // Exit if user clicked "Cancel" for chat description
+                   }
                   const currentUserID = firebase.auth().currentUser.uid; // Get the current user's ID as group admin
                   const groupMembers = [currentUserID]; // Initialize an array with the current user as a member
 
@@ -149,7 +155,9 @@ firebase.auth().onAuthStateChanged(function (user) {
                 // Event listener for the delete chat button
                 document.getElementById('deleteChatButton').addEventListener('click', () => {
                   const chatNameToDelete = prompt('Enter the name of the chat to delete:');
-
+                  if (chatNameToDelete === null) {
+                    return; // Exit if user clicked "Cancel" for chat name
+                  }
                   if (chatNameToDelete) {
                     deleteChat(chatNameToDelete); // Modified to only require chat name
                   } else {
