@@ -106,79 +106,131 @@
       firebase.auth().onAuthStateChanged((user) => {});
     </script>
    <script>
-    let createChatListenerAdded = false;
-    let deleteChatListenerAdded = false;
-    firebase.auth().onAuthStateChanged(function (user) {
-      if (!user) {
-        window.location.href = "/signin/";
-      } else {
-        const db = firebase.firestore();
-        const currentUser = firebase.auth().currentUser;
+  let createChatListenerAdded = false;
+  let deleteChatListenerAdded = false;
 
-        if (currentUser) {
-          // Get the user's role from Firestore
-          db.collection("users")
-            .doc(currentUser.uid)
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                const userRole = doc.data().role;
-                if (userRole === 'hiring_manager') {
-                  document.getElementById('chatControls').style.display = 'block';
-                  if (!createChatListenerAdded) {
-                    // Event listener for the create chat button
-                    document.getElementById('createChatButton').addEventListener('click', () => {
-                      const chatName = prompt("Enter the chat name:");
-                      const chatDescription = prompt("Enter the chat description:");
-                      const currentUserID = firebase.auth().currentUser.uid; // Get the current user's ID as group admin
-                      const groupMembers = [currentUserID]; // Initialize an array with the current user as a member
+firebase.auth().onAuthStateChanged(function (user) {
+  if (!user) {
+    window.location.href = "/signin/";
+  } else {
+    const db = firebase.firestore();
+    const currentUser = firebase.auth().currentUser;
 
-                      // Check if the chat name and description are not empty
-                      if (chatName && chatDescription) {
-                        // Call the function to create a new chat with the provided information
-                        createNewChat(chatName, chatDescription, currentUserID, groupMembers);
-                      } else {
-                        alert("Chat name and description are required!");
-                      }
-                    });
-                    createChatListenerAdded = true;
+    if (currentUser) {
+      // Get the user's role from Firestore
+      db.collection("users")
+        .doc(currentUser.uid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            const userRole = doc.data().role;
+            if (userRole === 'hiring_manager') {
+              document.getElementById('chatControls').style.display = 'block';
+              if (!createChatListenerAdded) {
+                // Event listener for the create chat button
+                document.getElementById('createChatButton').addEventListener('click', () => {
+                  const chatName = prompt("Enter the chat name:");
+                  const chatDescription = prompt("Enter the chat description:");
+                  const currentUserID = firebase.auth().currentUser.uid; // Get the current user's ID as group admin
+                  const groupMembers = [currentUserID]; // Initialize an array with the current user as a member
+
+                  // Check if the chat name and description are not empty
+                  if (chatName && chatDescription) {
+                    // Call the function to create a new chat with the provided information
+                    createNewChat(chatName, chatDescription, currentUserID, groupMembers);
+                  } else {
+                    alert("Chat name and description are required!");
                   }
-                } else {
-                  document.getElementById('chatControls').style.display = 'none';
-                }
-              } else {
-                console.log("No such document!");
+                });
+                createChatListenerAdded = true;
               }
-            })
-            .catch((error) => {
-              console.error("Error getting document:", error);
-            });
-        }
-      }
-    });
 
-    // Function to create a new chat
-    function createNewChat(chatName, chatDescription, groupAdmin, groupMembers) {
-      const db = firebase.firestore();
+              if (!deleteChatListenerAdded) {
+                // Event listener for the delete chat button
+                document.getElementById('deleteChatButton').addEventListener('click', () => {
+                  const chatNameToDelete = prompt('Enter the name of the chat to delete:');
 
-      // Add a new document to the "group_chats" collection
-      db.collection("group_chats")
-        .add({
-          name: chatName,
-          description: chatDescription,
-          groupAdmin: groupAdmin, // Add the group admin's ID
-          groupMembers: groupMembers, // Add an array containing group members' IDs
-        })
-        .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id);
-          // Optionally, you can redirect or perform any other action after creating the chat
-
+                  if (chatNameToDelete) {
+                    deleteChat(chatNameToDelete); // Modified to only require chat name
+                  } else {
+                    alert('Chat name is required!');
+                  }
+                });
+                deleteChatListenerAdded = true;
+              }
+            } else {
+              document.getElementById('chatControls').style.display = 'none';
+            }
+          } else {
+            console.log("No such document!");
+          }
         })
         .catch((error) => {
-          console.error("Error adding document: ", error);
-          // Handle the error here, such as displaying an error message to the user
+          console.error("Error getting document:", error);
         });
     }
+  }
+});
+
+
+// Function to create a new chat
+function createNewChat(chatName, chatDescription, groupAdmin, groupMembers) {
+  const db = firebase.firestore();
+
+  // Add a new document to the "group_chats" collection
+  db.collection("group_chats")
+    .add({
+      name: chatName,
+      description: chatDescription,
+      groupAdmin: groupAdmin, // Add the group admin's ID
+      groupMembers: groupMembers, // Add an array containing group members' IDs
+    })
+    .then((docRef) => {
+      console.log("Document written with ID: ", docRef.id);
+      // Optionally, you can redirect or perform any other action after creating the chat
+    })
+    .catch((error) => {
+      console.error("Error adding document: ", error);
+      // Handle the error here, such as displaying an error message to the user
+    });
+}
+
+// Function to delete a chat by name
+function deleteChat(chatName) {
+  const db = firebase.firestore();
+
+  // Query the chat to delete based on name
+  db.collection('group_chats')
+    .where('name', '==', chatName)
+    .get()
+    .then((querySnapshot) => {
+      if (querySnapshot.size > 0) {
+        // Delete the first matching chat document
+        const chatDoc = querySnapshot.docs[0];
+        chatDoc.ref
+          .delete()
+          .then(() => {
+            console.log('Chat deleted successfully');
+            // Clear the chat list and reload all chats
+            //loadOriginalChats();
+          })
+          .catch((error) => {
+            console.error('Error deleting chat:', error);
+            // Handle the error here, such as displaying an error message to the user
+          });
+      } else {
+        console.error('Chat not found');
+        alert('Chat not found.');
+      }
+    })
+    .catch((error) => {
+      console.error('Error getting chat document:', error);
+      // Handle the error here, such as displaying an error message to the user
+    });
+}
+
+
+
   </script>
   
     
@@ -261,21 +313,22 @@
           }
         });
       // Function to reload original chats
-      // Function to reload original chats
+// Function to reload original chats
 function loadOriginalChats() {
   const db = firebase.firestore();
+  const chatListDiv = document.getElementById("chat-list");
+  chatListDiv.innerHTML = ""; // Clear current search results or previous chats
+
+  // Get all chat documents from the "group_chats" collection
   db.collection("group_chats")
     .get()
     .then((querySnapshot) => {
-      const chatListDiv = document.getElementById("chat-list");
-      chatListDiv.innerHTML = ""; // Clear current search results or previous chats
-
-      // Loop through the chats and recreate the original chat list
+      // Loop through the chats and create elements for each chat
       querySnapshot.forEach((doc) => {
         const chatData = doc.data();
         const chatDiv = document.createElement("div");
 
-        // Apply inline styling as before or set class name
+        // Apply inline styling or set class name as needed
         chatDiv.style.border = "1px solid black";
         chatDiv.style.marginBottom = "10px";
         chatDiv.style.padding = "10px";
@@ -289,7 +342,7 @@ function loadOriginalChats() {
           handleGroupChatClick(doc.id, chatData.groupMembers)
         );
 
-        // Append the new chat div to the chat list in the DOM.
+        // Append the new chat div to the chat list in the DOM
         chatListDiv.appendChild(chatDiv);
       });
     })
