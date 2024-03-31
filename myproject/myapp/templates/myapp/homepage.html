@@ -211,8 +211,8 @@ function deleteChat(chatName) {
           .delete()
           .then(() => {
             console.log('Chat deleted successfully');
-            // Clear the chat list and reload all chats
-            //loadOriginalChats();
+            // Update the chat list immediately after deletion
+            //loadOriginalChats(); // Or you can directly remove the deleted chat from the DOM
           })
           .catch((error) => {
             console.error('Error deleting chat:', error);
@@ -228,6 +228,7 @@ function deleteChat(chatName) {
       // Handle the error here, such as displaying an error message to the user
     });
 }
+
 
 
 
@@ -313,22 +314,20 @@ function deleteChat(chatName) {
           }
         });
       // Function to reload original chats
-// Function to reload original chats
-function loadOriginalChats() {
+  function loadOriginalChats() {
   const db = firebase.firestore();
-  const chatListDiv = document.getElementById("chat-list");
-  chatListDiv.innerHTML = ""; // Clear current search results or previous chats
-
-  // Get all chat documents from the "group_chats" collection
   db.collection("group_chats")
     .get()
     .then((querySnapshot) => {
-      // Loop through the chats and create elements for each chat
+      const chatListDiv = document.getElementById("chat-list");
+      chatListDiv.innerHTML = ""; // Clear current search results or previous chats
+
+      // Loop through the chats and recreate the original chat list
       querySnapshot.forEach((doc) => {
         const chatData = doc.data();
         const chatDiv = document.createElement("div");
 
-        // Apply inline styling or set class name as needed
+        // Apply inline styling as before or set class name
         chatDiv.style.border = "1px solid black";
         chatDiv.style.marginBottom = "10px";
         chatDiv.style.padding = "10px";
@@ -342,7 +341,7 @@ function loadOriginalChats() {
           handleGroupChatClick(doc.id, chatData.groupMembers)
         );
 
-        // Append the new chat div to the chat list in the DOM
+        // Append the new chat div to the chat list in the DOM.
         chatListDiv.appendChild(chatDiv);
       });
     })
