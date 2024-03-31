@@ -55,11 +55,34 @@
         <button id="deleteChatButton">Delete Chat</button>
     </div>
     <script>
+      async function updateGroupChat(groupChatId, groupMembers, currentUserID, db) {
+        try {
+            // Add the current user ID to the group members array
+            groupMembers.push(currentUserID);
+            const groupChatRef = db.collection("group_chats").doc(groupChatId);
+    
+            // Run the Firestore transaction
+            await db.runTransaction(async (transaction) => {
+                // Get the latest snapshot of the group chat document
+                const groupChatDoc = await transaction.get(groupChatRef);
+    
+                // Update the group chat document with the updated group members array
+                transaction.update(groupChatRef, { groupMembers: groupMembers });
+            });
+    
+            // Redirect to the chat room page after the transaction completes
+            window.location.href = "/homepage/chatroom/" + groupChatId;
+        } catch (error) {
+            console.error("Error:", error);
+            console.log(error);
+            alert("An unexpected error occurred. Please try again later.");
+        }
+      }
+
       // JavaScript function to handle click event on group chat div
       const handleGroupChatClick = (groupChatId, groupMembers) => {
         const user = firebase.auth().currentUser;
-        var db = firebase.firestore();
-
+        const db = firebase.firestore();
         if (user) {
           const currentUserID = user.uid;
           var isMember = false;
@@ -80,21 +103,7 @@
               "You are not a member of this group chat. Do you want to join?"
             );
             if (joinConfirmation) {
-              try {
-                // Add the current user ID to the group members array
-                groupMembers.push(currentUserID);
-                
-                // Update the group chat document in Firestore
-                db.collection("group_chats").doc(groupChatId).update({
-                groupMembers: groupMembers
-                });
-
-                window.location.href = "/homepage/chatroom/" + groupChatId;
-              } catch (error) {
-                console.error("Error:", error);
-                console.log(error);
-                alert("An unexpected error occurred. Please try again later.");
-              }
+              updateGroupChat(groupChatId, groupMembers, currentUserID, db)
             }
           }
         } else {
