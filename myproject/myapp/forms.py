@@ -16,3 +16,17 @@ from .models import UserProfile """
     class Meta:
         model = UserProfile
         fields = ['profile_picture', 'school_name'] """
+from django import forms
+
+class PostMessageForm(forms.Form):
+    groupChatId = forms.CharField()  # Adjust the fields according to your needs
+    post_content = forms.CharField(widget=forms.Textarea)
+    
+
+class PostForm(forms.Form):
+    post_content = forms.CharField(
+        widget=forms.Textarea(attrs={'placeholder': 'Write your post here...', 'rows': 4}),
+        required=True
+    )
+    # Ensure groupChatId is correctly defined and required
+    groupChatId = forms.CharField(required=True)

@@ -1,10 +1,11 @@
 
 # myapp/models.py
 from django.db import models
-from django.contrib.auth.hashers import make_password 
-from firebase_admin import firestore
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
+from django.utils import timezone
+from firebase_admin import firestore
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 class FirebaseModel(models.Model):
     email = models.EmailField(max_length=255)
@@ -97,7 +98,6 @@ class UserProfile(models.Model):
 
         return user_data
 
-    
 class GroupChats(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=350)

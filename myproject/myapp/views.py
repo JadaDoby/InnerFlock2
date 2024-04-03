@@ -15,6 +15,19 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse
 from .decorators import firebase_login_required  # Import your custom decorator
+from django.shortcuts import render, redirect
+from .forms import PostForm
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import PostForm
+from firebase_admin import firestore
+from django.contrib.auth.decorators import login_required
+from datetime import datetime
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+
+
 
 # Assuming you have access to the Firebase UID and the Django user instance
 def save_user_profile(user, firebase_uid):
@@ -149,8 +162,117 @@ def profile(request):
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
 
-def privatechat(request):
-    return render(request, 'myapp/privatechat.html', {})
 
-def privatechat(request):
-    return render(request, 'myapp/privatechat.html', {})
+##
+def post_message_to_firestore(content, sender):
+    db = firestore.client()
+    timestamp = datetime.now()  # Get current timestamp
+    message_data = {
+        'content': content,
+        'sender': sender,
+        'timestamp': timestamp
+    }
+    db.collection('Messages').add(message_data)  # Updated collection name to 'Messages'
+
+# Function to retrieve messages from Firestore
+def get_messages_from_firestore(groupChatId):
+    db = firestore.client()
+    # Assuming 'Messages' collection contains a 'groupChatId' field to filter by
+    messages_ref = db.collection('Messages').where('groupChatId', '==', groupChatId).order_by('timestamp', direction=firestore.Query.DESCENDING).limit(10).stream()
+    messages = [doc.to_dict() for doc in messages_ref]
+    return messages
+
+@csrf_protect
+def my_view(request):
+    # Your view logic here to retrieve sender, post_context, and timestamp
+    sender = 'Example Sender'  # Replace with actual sender data
+    post_context = 'Example Post Content'  # Replace with actual post content data
+    timestamp = datetime.now()  # Replace with actual timestamp data
+
+    # Create context dictionary with the retrieved data
+    context = {
+        'sender': sender,
+        'post_context': post_context,
+        'timestamp': timestamp,
+    }
+
+    # Render the template with the provided context
+    return render(request, 'chatroom.html', context)
+
+# now trying to fetch the message in my view from firestore
+def chatroom_view(request, groupid):
+    messages = get_messages_from_firestore()  # Fetch messages
+    return render(request, 'myapp/chatroom.html', {'messages': messages})
+
+
+from django.shortcuts import redirect
+from django.urls import reverse
+from .forms import PostMessageForm
+
+# Example of a view function to handle message posting
+def post_message(request):
+    if request.method == 'POST':
+        form = PostMessageForm(request.POST)
+        if form.is_valid():
+            # Extract necessary data from the form
+            group_chat_id = form.cleaned_data['groupChatId']
+            content = form.cleaned_data['content']
+            sender = request.user  # Assuming you're using Django's authentication
+            
+
+            # Process the message (save to the database, send to Firebase, etc.)
+
+            # Redirect to the group chat view after posting
+            return redirect('groupchat_view', groupChatId=group_chat_id)
+    else:
+        form = PostMessageForm()
+    # If not POST or form is not valid, redirect to a default view or render an error
+    return redirect('default_view')
+
+def save_message_to_firestore(content, sender, groupChatId):
+    db = firestore.client()
+    doc_ref = db.collection('Messages').document()
+    doc_ref.set({
+        'content': content,
+        'sender': sender,
+        'groupChatId': groupChatId,
+        'timestamp': firestore.SERVER_TIMESTAMP
+    })
+    print(f"Message saved: {content}")
+
+
+@login_required
+def chatroom_view(request, groupChatId):
+    try:
+        # Your logic to fetch messages goes here
+        messages = get_messages_from_firestore(groupChatId)  # Make sure this function is prepared to receive a groupChatId
+
+        # Debug print statement to ensure groupChatId is correctly passed
+        print("Rendering form with groupChatId:", groupChatId)
+
+        # Render the chatroom template with messages and groupChatId included in the context
+        return render(request, 'myapp/chatroom.html', {'messages': messages, 'groupChatId': groupChatId})
+    except Exception as e:
+        print(f"Error retrieving messages: {e}")
+        # Consider redirecting to a specific error handling page or back to a safe page
+        return redirect('homepage')
+    
+@csrf_exempt
+@login_required
+def post_message_view(request):
+    if request.method == 'POST':
+        print(request.POST)  # Debug print to inspect all received POST data
+        form = PostForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data['post_content']
+            groupChatId = form.cleaned_data['groupChatId']  # Correctly access groupChatId
+            sender = request.user.username
+            
+            print(f"Content: {content}, GroupChatId: {groupChatId}, Sender: {sender}")
+            save_message_to_firestore(content, sender, groupChatId)
+            return redirect('chatroom_view', groupChatId=groupChatId)
+        else:
+            print("Form is not valid:", form.errors)
+            return JsonResponse({'error': 'Invalid form data', 'details': form.errors.as_json()}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)

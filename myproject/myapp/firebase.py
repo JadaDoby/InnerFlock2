@@ -1,18 +1,7 @@
-# myapp/firebase.py
 import os
 import firebase_admin
-from firebase_admin import credentials, firestore, App, initialize_app
+from firebase_admin import credentials, firestore, initialize_app
 from decouple import config
-from firebase_admin import App, initialize_app
-
-""" def initialize_firebase():
-    cred_path = os.environ.get('FIREBASE_CREDENTIALS_PATH', './serviceAccountKey.json')
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
-    db = firestore.client()
-    return db
-
-db = initialize_firebase() """
 
 def initialize_firebase():
     cred_path = os.environ.get('FIREBASE_CREDENTIALS_PATH', './serviceAccountKey.json')
@@ -20,18 +9,30 @@ def initialize_firebase():
     
     try:
         firebase_app = firebase_admin.get_app()
-    except ValueError as e:
+    except ValueError:
         firebase_app = initialize_app(cred)
     
-    db = firestore.client(app=firebase_app)
-    return db
+    return firestore.client(app=firebase_app)
 
-FIREBASE_CONFIG = {
-    'apiKey': config('FIREBASE_API_KEY'),
-    'authDomain': config('FIREBASE_AUTH_DOMAIN'),
-    'projectId': config('FIREBASE_PROJECT_ID'),
-    'storageBucket': config('FIREBASE_STORAGE_BUCKET'),
-    'messagingSenderId': config('FIREBASE_MESSAGING_SENDER_ID'),
-    'appId': config('FIREBASE_APP_ID'),
-    'measurementId': config('FIREBASE_MEASUREMENT_ID'),
-}
+def post_message_to_firestore(content, sender):
+    db = initialize_firebase()
+
+    # Define message data
+    message_data = {
+        'content': content,
+        'sender': sender,
+        'timestamp': firestore.SERVER_TIMESTAMP
+    }
+
+    # Add the message document to the 'Messages' collection
+    db.collection('Messages').add(message_data)
+
+def get_messages_from_firestore():
+    db = initialize_firebase()
+
+    # Retrieve messages from the 'Messages' collection
+    messages_ref = db.collection('Messages').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(10).get()
+    messages = []
+    for doc in messages_ref:
+        messages.append(doc.to_dict())
+    return messages

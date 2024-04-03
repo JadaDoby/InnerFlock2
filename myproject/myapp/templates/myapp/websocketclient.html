@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            background-color: #f3f2ef; /* Light grey background */
+            color: #000000; /* Black text */
+            font-family: Arial, sans-serif; /* Choose your preferred font */
+        }
+        #chat-container {
+            max-width: 600px; /* Limit chat width */
+            margin: 50px auto; /* Center chat on the page */
+            padding: 20px;
+            background-color: #ffffff; /* White background */
+            border: 1px solid #dcdcdc; /* Light grey border */
+            border-radius: 5px; /* Rounded corners */
+        }
+        #chat {
+            max-height: 300px; /* Limit height to allow scrolling */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding: 10px;
+            margin-bottom: 10px;
+            color: #000000; /* Black text */
+        }
+        #messageInput {
+            width: calc(100% - 70px); /* Adjust input width */
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #dcdcdc; /* Light grey border */
+            border-radius: 20px; /* Rounded corners */
+            outline: none; /* Remove default input focus outline */
+        }
+        #sendButton {
+            width: 60px; /* Fixed width for send button */
+            padding: 10px;
+            background-color: #0073b1; /* LinkedIn blue */
+            color: #ffffff; /* White text */
+            border: none;
+            border-radius: 20px; /* Rounded corners */
+            cursor: pointer;
+            outline: none; /* Remove default button focus outline */
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat"></div>
+        <div>
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        var socket = new WebSocket('ws://localhost:8000/ws/chat/');
+
+        socket.onmessage = function(event) {
+            var message = event.data;
+            var chat = document.getElementById('chat');
+            chat.innerHTML += '<div style="margin-bottom: 10px;">' + message + '</div>';
+            chat.scrollTop = chat.scrollHeight; // Scroll to bottom
+        };
+
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value.trim(); // Trim whitespace
+            if (message !== '') {
+                socket.send(message);
+                messageInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
