@@ -2,3 +2,7 @@
 .DS_Store
 *.pyc
 db.sqlite3
+/backend/
+client.js
+dump.rdb
+file1.txt
