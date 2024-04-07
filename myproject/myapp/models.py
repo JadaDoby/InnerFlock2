@@ -65,4 +65,4 @@ class GroupChats(models.Model):
     image = models.ImageField()
     groupAdmin = models.ForeignKey(User, related_name = 'admin_of_groupchat', on_delete=models.SET_NULL, null=True)  # group chats remain if admin is deleted
     groupMembers = models.ManyToManyField(User, related_name='groupchat_participants')  
-    isPrivate = models.BooleanField()
+    isPrivate = models.BooleanField() 

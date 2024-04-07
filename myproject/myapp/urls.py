@@ -15,4 +15,4 @@ urlpatterns = [
     path('homepage/chatroom/<str:groupid>/',views.chatroom,name='chatroom'),
     path('profile/',views.profile,name='profile'),
     path('homepage/privatechat.html',views.privatechat,name='privatechat'),
-]
+] 

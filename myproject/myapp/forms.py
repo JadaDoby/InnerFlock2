@@ -15,4 +15,4 @@ from .models import UserProfile """
 """ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['profile_picture', 'school_name'] """
+        fields = ['profile_picture', 'school_name'] """ 

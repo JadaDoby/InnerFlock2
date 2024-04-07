@@ -154,3 +154,4 @@ def privatechat(request):
 
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
+ 
