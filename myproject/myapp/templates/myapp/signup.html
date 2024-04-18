@@ -11,7 +11,6 @@
       type="text/css"
       href="{% static 'myapp/css/styles.css' %}"
     />
-
   </head>
   <body>
     <header>
@@ -35,15 +34,27 @@
 
         <h3>Select Role:</h3>
         <label for="student">
-          <input type="radio" id="student" name="role" value="student" required />
+          <input
+            type="radio"
+            id="student"
+            name="role"
+            value="student"
+            required
+          />
           Student
         </label>
-        <br>
+        <br />
         <label for="hiring_manager">
-          <input type="radio" id="hiring_manager" name="role" value="hiring_manager" required />
+          <input
+            type="radio"
+            id="hiring_manager"
+            name="role"
+            value="hiring_manager"
+            required
+          />
           Hiring Manager
         </label>
-        <br>
+        <br />
 
         <button type="submit">Sign Up</button>
       </form>
@@ -58,61 +69,66 @@
     <script>
       // Firebase configuration
       const firebaseConfig = {
-            apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
-            authDomain: "innerflock-d05ee.firebaseapp.com",
-            projectId: "innerflock-d05ee",
-            storageBucket: "innerflock-d05ee.appspot.com",
-            messagingSenderId: "751941751214",
-            appId: "1:751941751214:web:4a2b792e49087d102b383f",
-            measurementId: "G-6SR6P5VP7R",
-        };
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R",
+      };
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
 
-      document.getElementById("signup-form").addEventListener("submit", function (e) {
-        e.preventDefault();
+      document
+        .getElementById("signup-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
 
-        const email = document.getElementById("email").value;
-        const username = document.getElementById("username").value;
-        const school = document.getElementById("school").value;
-        const password = document.getElementById("password").value;
-        const role = document.querySelector('input[name="role"]:checked').value;
+          const email = document.getElementById("email").value;
+          const username = document.getElementById("username").value;
+          const school = document.getElementById("school").value;
+          const password = document.getElementById("password").value;
+          const role = document.querySelector(
+            'input[name="role"]:checked'
+          ).value;
 
-        // First, create the user with email and password
-        firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            // User creation successful.
-            const uid = userCredential.user.uid; // Get the unique user ID from the user credential
+          // create the user with email and password
+          firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+              // User creation successful.
+              const uid = userCredential.user.uid; // Get the unique user ID from the user credential
 
-            //add a document to Firestore with the additional user information.
-            firebase
-              .firestore()
-              .collection("users")
-              .doc(uid)
-              .set({
-                email: email,
-                username: username,
-                school: school,
-                role: role, 
-              })
-              .then(() => {
-                console.log("Firestore document successfully written!");
-                window.location.href = "/homepage/"; // Redirect after successful sign-up and Firestore document creation
-              })
-              .catch((error) => {
-                console.error("Error writing document to Firestore: ", error);
-              });
-          })
-          .catch((error) => {
-            // Handle sign-up errors
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            document.getElementById("error-message").textContent = errorMessage;
-          });
-      });
+              //add a document to Firestore with the additional user information.
+              firebase
+                .firestore()
+                .collection("users")
+                .doc(uid)
+                .set({
+                  email: email,
+                  username: username,
+                  school: school,
+                  role: role,
+                })
+                .then(() => {
+                  console.log("Firestore document successfully written!");
+                  window.location.href = "/homepage/"; // Redirect after successful sign-up and Firestore document creation
+                })
+                .catch((error) => {
+                  console.error("Error writing document to Firestore: ", error);
+                });
+            })
+            .catch((error) => {
+              // Handle sign-up errors
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              document.getElementById("error-message").textContent =
+                errorMessage;
+            });
+        });
     </script>
   </body>
 </html>

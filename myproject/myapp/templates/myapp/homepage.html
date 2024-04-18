@@ -1,11 +1,9 @@
-{% extends 'myapp/base.html' %}
-{% load static %}
-{% block content %}
+{% extends 'myapp/base.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Homepage!</title>
     <link
       rel="stylesheet"
@@ -13,13 +11,17 @@
       href="{% static 'myapp/css/styles.css' %}"
     />
 
-    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'myapp/css/styles.css' %}"
+    />
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script>
-        // Firebase configuration
+      // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
         authDomain: "innerflock-d05ee.firebaseapp.com",
@@ -36,48 +38,59 @@
   </head>
   <body>
     <div class="page-content">
-        <div class="carousel-container">
-            <form id="search-form">
-                <div class="search-container">
-                    <input type="text" placeholder="Search..." id="search-input" name="search" />
-                    <button type="submit">Search</button>
-                </div>
-            </form>
-        </div>
+      <div class="carousel-container">
+        <form id="search-form">
+          <div class="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              id="search-input"
+              name="search"
+            />
+            <button type="submit">Search</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div id="chat-list">
-        <!-- Search results or original chats will be inserted here -->
+      <!-- Search results or original chats will be inserted here -->
     </div>
 
-    <div id="chatControls" style="display: none;">
+    <div id="chatControls" style="display: none">
       <button id="createChatButton">Create Chat</button>
-      <button id="editChatButton" style="display: none;">Edit Chat</button> <!-- Initially hidden -->      
-  
+      <button id="editChatButton" style="display: none">Edit Chat</button>
+      <!-- Initially hidden -->
+
       <button id="deleteChatButton">Delete Chat</button>
-  </div>
+    </div>
     <script>
-      async function updateGroupChat(groupChatId, groupMembers, currentUserID, db) {
+      async function updateGroupChat(
+        groupChatId,
+        groupMembers,
+        currentUserID,
+        db
+      ) {
         try {
-            // Add the current user ID to the group members array
-            groupMembers.push(currentUserID);
-            const groupChatRef = db.collection("group_chats").doc(groupChatId);
-    
-            // Run the Firestore transaction
-            await db.runTransaction(async (transaction) => {
-                // Get the latest snapshot of the group chat document
-                const groupChatDoc = await transaction.get(groupChatRef);
-    
-                // Update the group chat document with the updated group members array
-                transaction.update(groupChatRef, { groupMembers: groupMembers });
-            });
-    
-            // Redirect to the chat room page after the transaction completes
-            window.location.href = "/homepage/chatroom/" + groupChatId;
+          // Add the current user ID to the group members array
+          groupMembers.push(currentUserID);
+          const groupChatRef = db.collection("group_chats").doc(groupChatId);
+
+          // Run the Firestore transaction
+          await db.runTransaction(async (transaction) => {
+            // Get the latest snapshot of the group chat document
+            const groupChatDoc = await transaction.get(groupChatRef);
+
+            // Update the group chat document with the updated group members array
+            transaction.update(groupChatRef, { groupMembers: groupMembers });
+          });
+
+          // Redirect to the chat room page after the transaction completes
+          window.location.href = "/homepage/chatroom/" + groupChatId;
         } catch (error) {
-            console.error("Error:", error);
-            console.log(error);
-            alert("An unexpected error occurred. Please try again later.");
+          console.error("Error:", error);
+          console.log(error);
+          alert("An unexpected error occurred. Please try again later.");
         }
       }
 
@@ -105,7 +118,7 @@
               "You are not a member of this group chat. Do you want to join?"
             );
             if (joinConfirmation) {
-              updateGroupChat(groupChatId, groupMembers, currentUserID, db)
+              updateGroupChat(groupChatId, groupMembers, currentUserID, db);
             }
           }
         } else {
@@ -116,224 +129,243 @@
       // Wait for Firebase authentication state to change
       firebase.auth().onAuthStateChanged((user) => {});
     </script>
-   <script>
-  let createChatListenerAdded = false;
-  let deleteChatListenerAdded = false;
-  let editChatListenerAdded = false; // Add this line if not already declared
+    <script>
+      let createChatListenerAdded = false;
+      let deleteChatListenerAdded = false;
+      let editChatListenerAdded = false; // Add this line if not already declared
 
-  firebase.auth().onAuthStateChanged(function (user) {
-  if (!user) {
-    window.location.href = "/signin/";
-  } else {
-    const db = firebase.firestore();
-    const currentUser = firebase.auth().currentUser;
-
-    if (currentUser) {
-      // Get the user's role from Firestore
-      db.collection("users")
-        .doc(currentUser.uid)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            const userRole = doc.data().role;
-            if (userRole === 'hiring_manager' || userRole === 'admin') {
-              document.getElementById('chatControls').style.display = 'block';
-              if (!createChatListenerAdded) {
-                // Event listener for the create chat button
-                document.getElementById('createChatButton').addEventListener('click', () => {
-                  const chatName = prompt("Enter the chat name:");
-                  if (chatName === null) {
-                    return; // Exit if user clicked "Cancel" for chat name
-                  }
-                  const chatDescription = prompt("Enter the chat description:");
-                  if (chatDescription === null) {
-                      return; // Exit if user clicked "Cancel" for chat description
-                   }
-                  const currentUserID = firebase.auth().currentUser.uid; // Get the current user's ID as group admin
-                  const groupMembers = [currentUserID]; // Initialize an array with the current user as a member
-
-                  // Check if the chat name and description are not empty
-                  if (chatName && chatDescription) {
-                    // Call the function to create a new chat with the provided information
-                    createNewChat(chatName, chatDescription, currentUserID, groupMembers);
-                  } else {
-                    alert("Chat name and description are required!");
-                  }
-                });
-                createChatListenerAdded = true;
-              }
-
-              if (!deleteChatListenerAdded) {
-                // Event listener for the delete chat button
-                document.getElementById('deleteChatButton').addEventListener('click', () => {
-                  const chatNameToDelete = prompt('Enter the name of the chat to delete:');
-                  if (chatNameToDelete === null) {
-                    return; // Exit if user clicked "Cancel" for chat name
-                  }
-                  if (chatNameToDelete) {
-                    deleteChat(chatNameToDelete); // Modified to only require chat name
-                  } else {
-                    alert('Chat name is required!');
-                  }
-                });
-                deleteChatListenerAdded = true;
-              }
-
-             if (userRole === 'admin' && !editChatListenerAdded) {
-              // Add this line if not already declared
-
-              document.getElementById('editChatButton').style.display = 'block';
-
-    // Event listener for the edit chat button
-    document.getElementById('editChatButton').addEventListener('click', () => {
-        const chatNameToEdit = prompt('Enter the name of the chat to edit:');
-        if (chatNameToEdit === null) {
-            return; // Exit if user clicked "Cancel" for chat name
-        }
-        const newChatName = prompt('Enter the new chat name:');
-        if (newChatName === null) {
-            return; // Exit if user clicked "Cancel" for new chat name
-        }
-        const newChatDescription = prompt('Enter the new chat description:');
-        if (newChatDescription === null) {
-            return; // Exit if user clicked "Cancel" for new chat description
-        }
-        if (chatNameToEdit && newChatName && newChatDescription) {
-            editChat(chatNameToEdit, newChatName, newChatDescription);
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/signin/";
         } else {
-            alert('Chat name, new chat name, and new chat description are required!');
-        }
-    });
-    editChatListenerAdded = true;
+          const db = firebase.firestore();
+          const currentUser = firebase.auth().currentUser;
 
-              }
+          if (currentUser) {
+            // Get the user's role from Firestore
+            db.collection("users")
+              .doc(currentUser.uid)
+              .get()
+              .then((doc) => {
+                if (doc.exists) {
+                  const userRole = doc.data().role;
+                  if (userRole === "hiring_manager" || userRole === "admin") {
+                    document.getElementById("chatControls").style.display =
+                      "block";
+                    if (!createChatListenerAdded) {
+                      // Event listener for the create chat button
+                      document
+                        .getElementById("createChatButton")
+                        .addEventListener("click", () => {
+                          const chatName = prompt("Enter the chat name:");
+                          if (chatName === null) {
+                            return; // Exit if user clicked "Cancel" for chat name
+                          }
+                          const chatDescription = prompt(
+                            "Enter the chat description:"
+                          );
+                          if (chatDescription === null) {
+                            return; // Exit if user clicked "Cancel" for chat description
+                          }
+                          const currentUserID = firebase.auth().currentUser.uid; // Get the current user's ID as group admin
+                          const groupMembers = [currentUserID]; // Initialize an array with the current user as a member
 
+                          // Check if the chat name and description are not empty
+                          if (chatName && chatDescription) {
+                            // Call the function to create a new chat with the provided information
+                            createNewChat(
+                              chatName,
+                              chatDescription,
+                              currentUserID,
+                              groupMembers
+                            );
+                          } else {
+                            alert("Chat name and description are required!");
+                          }
+                        });
+                      createChatListenerAdded = true;
+                    }
 
-            } else {
-              document.getElementById('chatControls').style.display = 'none';
-            }
-          } else {
-            console.log("No such document!");
+                    if (!deleteChatListenerAdded) {
+                      // Event listener for the delete chat button
+                      document
+                        .getElementById("deleteChatButton")
+                        .addEventListener("click", () => {
+                          const chatNameToDelete = prompt(
+                            "Enter the name of the chat to delete:"
+                          );
+                          if (chatNameToDelete === null) {
+                            return; // Exit if user clicked "Cancel" for chat name
+                          }
+                          if (chatNameToDelete) {
+                            deleteChat(chatNameToDelete); // Modified to only require chat name
+                          } else {
+                            alert("Chat name is required!");
+                          }
+                        });
+                      deleteChatListenerAdded = true;
+                    }
+
+                    if (userRole === "admin" && !editChatListenerAdded) {
+                      // Add this line if not already declared
+
+                      document.getElementById("editChatButton").style.display =
+                        "block";
+
+                      // Event listener for the edit chat button
+                      document
+                        .getElementById("editChatButton")
+                        .addEventListener("click", () => {
+                          const chatNameToEdit = prompt(
+                            "Enter the name of the chat to edit:"
+                          );
+                          if (chatNameToEdit === null) {
+                            return; // Exit if user clicked "Cancel" for chat name
+                          }
+                          const newChatName = prompt(
+                            "Enter the new chat name:"
+                          );
+                          if (newChatName === null) {
+                            return; // Exit if user clicked "Cancel" for new chat name
+                          }
+                          const newChatDescription = prompt(
+                            "Enter the new chat description:"
+                          );
+                          if (newChatDescription === null) {
+                            return; // Exit if user clicked "Cancel" for new chat description
+                          }
+                          if (
+                            chatNameToEdit &&
+                            newChatName &&
+                            newChatDescription
+                          ) {
+                            editChat(
+                              chatNameToEdit,
+                              newChatName,
+                              newChatDescription
+                            );
+                          } else {
+                            alert(
+                              "Chat name, new chat name, and new chat description are required!"
+                            );
+                          }
+                        });
+                      editChatListenerAdded = true;
+                    }
+                  } else {
+                    document.getElementById("chatControls").style.display =
+                      "none";
+                  }
+                } else {
+                  console.log("No such document!");
+                }
+              })
+              .catch((error) => {
+                console.error("Error getting document:", error);
+              });
           }
-        })
-        .catch((error) => {
-          console.error("Error getting document:", error);
-        });
-    }
-  }
-});
+        }
+      });
 
+      // Function to create a new chat
+      function createNewChat(
+        chatName,
+        chatDescription,
+        groupAdmin,
+        groupMembers
+      ) {
+        const db = firebase.firestore();
 
-
-// Function to create a new chat
-function createNewChat(chatName, chatDescription, groupAdmin, groupMembers) {
-  const db = firebase.firestore();
-
-  // Add a new document to the "group_chats" collection
-  db.collection("group_chats")
-    .add({
-      name: chatName,
-      description: chatDescription,
-      groupAdmin: groupAdmin, // Add the group admin's ID
-      groupMembers: groupMembers, // Add an array containing group members' IDs
-    })
-    .then((docRef) => {
-      console.log("Document written with ID: ", docRef.id);
-      // Optionally, you can redirect or perform any other action after creating the chat
-    })
-    .catch((error) => {
-      console.error("Error adding document: ", error);
-      // Handle the error here, such as displaying an error message to the user
-    });
-}
-
-// Function to delete a chat by name
-function deleteChat(chatName) {
-  const db = firebase.firestore();
-
-  // Trim chat name to remove leading/trailing spaces
-  chatName = chatName.trim();
-
-  // Log the chat name being processed
-  console.log('Deleting chat:', chatName);
-
-  // Query the chat to delete based on name (case-insensitive comparison)
-  db.collection('group_chats')
-    .where('name', '==', chatName) // Convert to lowercase for comparison
-    .get()
-    .then((querySnapshot) => {
-      if (querySnapshot.size > 0) {
-        // Delete the first matching chat document
-        const chatDoc = querySnapshot.docs[0];
-        chatDoc.ref
-          .delete()
-          .then(() => {
-            console.log('Chat deleted successfully:', chatName);
-            // Update the chat list immediately after deletion
-            //loadOriginalChats(); // Or you can directly remove the deleted chat from the DOM
+        // Add a new document to the "group_chats" collection
+        db.collection("group_chats")
+          .add({
+            name: chatName,
+            description: chatDescription,
+            groupAdmin: groupAdmin, // Add the group admin's ID
+            groupMembers: groupMembers, // Add an array containing group members' IDs
+          })
+          .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
           })
           .catch((error) => {
-            console.error('Error deleting chat:', error);
-            // Handle the error here, such as displaying an error message to the user
-            alert('Error deleting chat. Please try again.');
+            console.error("Error adding document: ", error);
           });
-      } else {
-        console.error('Chat not found:', chatName);
-        alert('Chat not found.');
       }
-    })
-    .catch((error) => {
-      console.error('Error getting chat document:', error);
-      // Handle the error here, such as displaying an error message to the user
-      alert('Error getting chat document. Please try again.');
-    });
-}
 
+      // Function to delete a chat by name
+      function deleteChat(chatName) {
+        const db = firebase.firestore();
 
-// Function to edit a chat by name
-function editChat(chatNameToEdit, newChatName, newChatDescription) {
-    const db = firebase.firestore();
+        // Trim chat name to remove leading/trailing spaces
+        chatName = chatName.trim();
 
-    // Query the chat to edit based on name
-    db.collection('group_chats')
-        .where('name', '==', chatNameToEdit)
-        .get()
-        .then((querySnapshot) => {
+        // Log the chat name being processed
+        console.log("Deleting chat:", chatName);
+
+        // Query the chat to delete based on name (case-insensitive comparison)
+        db.collection("group_chats")
+          .where("name", "==", chatName) // Convert to lowercase for comparison
+          .get()
+          .then((querySnapshot) => {
             if (querySnapshot.size > 0) {
-                // Update the first matching chat document
-                const chatDoc = querySnapshot.docs[0];
-                chatDoc.ref
-                    .update({
-                        name: newChatName,
-                        description: newChatDescription
-                    })
-                    .then(() => {
-                        console.log('Chat edited successfully');
-                        // Optionally, you can reload the chat list or update the UI
-                    })
-                    .catch((error) => {
-                        console.error('Error editing chat:', error);
-                        // Handle the error here, such as displaying an error message to the user
-                    });
+              // Delete the first matching chat document
+              const chatDoc = querySnapshot.docs[0];
+              chatDoc.ref
+                .delete()
+                .then(() => {
+                  console.log("Chat deleted successfully:", chatName);
+                  // Update the chat list immediately after deletion
+                  //loadOriginalChats(); // Or you can directly remove the deleted chat from the DOM
+                })
+                .catch((error) => {
+                  console.error("Error deleting chat:", error);
+                  alert("Error deleting chat. Please try again.");
+                });
             } else {
-                console.error('Chat not found');
-                alert('Chat not found.');
+              console.error("Chat not found:", chatName);
+              alert("Chat not found.");
             }
-        })
-        .catch((error) => {
-            console.error('Error getting chat document:', error);
-            // Handle the error here, such as displaying an error message to the user
-        });
-}
+          })
+          .catch((error) => {
+            console.error("Error getting chat document:", error);
+            // Handle the error
+            alert("Error getting chat document. Please try again.");
+          });
+      }
 
+      // Function to edit a chat by name
+      function editChat(chatNameToEdit, newChatName, newChatDescription) {
+        const db = firebase.firestore();
 
-
-
-
-
-  </script>
-  
-    
+        // Query the chat to edit based on name
+        db.collection("group_chats")
+          .where("name", "==", chatNameToEdit)
+          .get()
+          .then((querySnapshot) => {
+            if (querySnapshot.size > 0) {
+              // Update the first matching chat document
+              const chatDoc = querySnapshot.docs[0];
+              chatDoc.ref
+                .update({
+                  name: newChatName,
+                  description: newChatDescription,
+                })
+                .then(() => {
+                  console.log("Chat edited successfully");
+                })
+                .catch((error) => {
+                  console.error("Error editing chat:", error);
+                });
+            } else {
+              console.error("Chat not found");
+              alert("Chat not found.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error getting chat document:", error);
+          });
+      }
+    </script>
 
     <!-- Search Results Container -->
     <div id="chat-list">
@@ -413,42 +445,41 @@ function editChat(chatNameToEdit, newChatName, newChatDescription) {
           }
         });
       // Function to reload original chats
-  function loadOriginalChats() {
-  const db = firebase.firestore();
-  db.collection("group_chats")
-    .get()
-    .then((querySnapshot) => {
-      const chatListDiv = document.getElementById("chat-list");
-      chatListDiv.innerHTML = ""; // Clear current search results or previous chats
+      function loadOriginalChats() {
+        const db = firebase.firestore();
+        db.collection("group_chats")
+          .get()
+          .then((querySnapshot) => {
+            const chatListDiv = document.getElementById("chat-list");
+            chatListDiv.innerHTML = ""; // Clear current search results or previous chats
 
-      // Loop through the chats and recreate the original chat list
-      querySnapshot.forEach((doc) => {
-        const chatData = doc.data();
-        const chatDiv = document.createElement("div");
+            // Loop through the chats and recreate the original chat list
+            querySnapshot.forEach((doc) => {
+              const chatData = doc.data();
+              const chatDiv = document.createElement("div");
 
-        // Apply inline styling as before or set class name
-        chatDiv.style.border = "1px solid black";
-        chatDiv.style.marginBottom = "10px";
-        chatDiv.style.padding = "10px";
-        chatDiv.style.cursor = "pointer";
-        chatDiv.style.backgroundColor = "#f0f0f0";
+              // Apply inline styling as before or set class name
+              chatDiv.style.border = "1px solid black";
+              chatDiv.style.marginBottom = "10px";
+              chatDiv.style.padding = "10px";
+              chatDiv.style.cursor = "pointer";
+              chatDiv.style.backgroundColor = "#f0f0f0";
 
-        chatDiv.className = "chat";
-        chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
+              chatDiv.className = "chat";
+              chatDiv.innerHTML = `<h3>${chatData.name}</h3><p>${chatData.description}</p>`;
 
-        chatDiv.addEventListener("click", () =>
-          handleGroupChatClick(doc.id, chatData.groupMembers)
-        );
+              chatDiv.addEventListener("click", () =>
+                handleGroupChatClick(doc.id, chatData.groupMembers)
+              );
 
-        // Append the new chat div to the chat list in the DOM.
-        chatListDiv.appendChild(chatDiv);
-      });
-    })
-    .catch((error) => {
-      console.error("Error getting documents: ", error);
-    });
-}
-
+              // Append the new chat div to the chat list in the DOM.
+              chatListDiv.appendChild(chatDiv);
+            });
+          })
+          .catch((error) => {
+            console.error("Error getting documents: ", error);
+          });
+      }
     </script>
 
     <!-- Box Grid -->

@@ -1,8 +1,5 @@
 <!-- myapp/templates/myapp/profile.html -->
-{% extends 'myapp/base.html' %}
-{% load static %}
-
-{% block content %}
+{% extends 'myapp/base.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -39,47 +36,47 @@
       firebase.initializeApp(firebaseConfig);
     </script>
     <script>
-      firebase.auth().onAuthStateChanged(function(user) {
+      firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-          user.getIdToken(true).then(function(idToken) {
-            fetch('/profile/', {
-              method: 'GET',
+          user.getIdToken(true).then(function (idToken) {
+            fetch("/profile/", {
+              method: "GET",
               headers: {
-                'Authorization': 'Bearer ' + idToken
+                Authorization: "Bearer " + idToken,
               },
             })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch((error) => console.error('Error:', error));
+              .then((response) => response.json())
+              .then((data) => console.log(data))
+              .catch((error) => console.error("Error:", error));
           });
         } else {
           console.log("User is not logged in.");
         }
       });
-      </script>
-      <script>
-        firebase.auth().onAuthStateChanged(function(user) {
-          if (!user) {
-            window.location.href = '/signin/';
-          } else {
-            console.log("User is logged in.");
-          }
-        });
-      </script>
-      <script>
-        function firebaseLogout() {
-          firebase
-            .auth()
-            .signOut()
-            .then(function () {
-              // Redirect to your sign-in page or home page after logout
-              window.location.href = "/signin/";
-            })
-            .catch(function (error) {
-              console.error("Firebase Logout Error", error);
-            });
+    </script>
+    <script>
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/signin/";
+        } else {
+          console.log("User is logged in.");
         }
-      </script>
+      });
+    </script>
+    <script>
+      function firebaseLogout() {
+        firebase
+          .auth()
+          .signOut()
+          .then(function () {
+            // Redirect to your sign-in page or home page after logout
+            window.location.href = "/signin/";
+          })
+          .catch(function (error) {
+            console.error("Firebase Logout Error", error);
+          });
+      }
+    </script>
   </head>
   <body>
     <h1>User Profile</h1>
@@ -113,7 +110,7 @@
     </section>
 
     <footer>
-      <a href="javascript:void(0);" onclick="firebaseLogout()">Logout</a>>
+      <a href="javascript:void(0);" onclick="firebaseLogout()">Logout</a>
     </footer>
   </body>
 </html>

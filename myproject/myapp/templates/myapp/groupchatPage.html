@@ -1,90 +1,89 @@
-{% extends 'myapp/base.html' %}
-{% load static %}
-
-{% block content %}
+{% extends 'myapp/base.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dynamic Group Chats</title>
     <style></style>
-    
-
-</head>
-<body>
+  </head>
+  <body>
     <h1>My Chats</h1>
     <div id="groupChatList"></div>
     <!-- Include Firebase JS SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script> <!-- need to import firestore not realtime db -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- need to import firestore not realtime db -->
     <script>
-    
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
-            authDomain: "innerflock-d05ee.firebaseapp.com",
-            projectId: "innerflock-d05ee",
-            storageBucket: "innerflock-d05ee.appspot.com",
-            messagingSenderId: "751941751214",
-            appId: "1:751941751214:web:4a2b792e49087d102b383f",
-            measurementId: "G-6SR6P5VP7R",
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCd5k7se1ovRs8xtkPCvsZpvfsqyeSbbQ0",
+        authDomain: "innerflock-d05ee.firebaseapp.com",
+        projectId: "innerflock-d05ee",
+        storageBucket: "innerflock-d05ee.appspot.com",
+        messagingSenderId: "751941751214",
+        appId: "1:751941751214:web:4a2b792e49087d102b383f",
+        measurementId: "G-6SR6P5VP7R",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // on click for group chat div
+      const handleGroupChatClick = (groupChatId) => {
+        window.location.href = "/homepage/chatroom/" + groupChatId;
+      };
+
+      // Create HTML elements dynamically
+      function createGroupChatElement(groupChat, groupChatId) {
+        var div = document.createElement("div");
+        div.style.border = "1px solid black";
+        div.style.marginBottom = "10px";
+        div.style.padding = "10px";
+        div.style.cursor = "pointer";
+        div.onclick = function () {
+          handleGroupChatClick(groupChatId);
         };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // on click for group chat div
-        const handleGroupChatClick = (groupChatId) => { window.location.href = "/homepage/chatroom/" + groupChatId; }
-
-        // Create HTML elements dynamically
-        function createGroupChatElement(groupChat, groupChatId) {
-            var div = document.createElement("div");
-            div.style.border = "1px solid black";
-            div.style.marginBottom = "10px";
-            div.style.padding = "10px";
-            div.style.cursor = "pointer";
-            div.onclick = function() {
-                handleGroupChatClick(groupChatId);
-            };
-            div.innerHTML = `
+        div.innerHTML = `
                 <h3>${groupChat.name}</h3>
                 <p>${groupChat.description}</p>
             `;
-            return div;
+        return div;
+      }
+
+      // list every groupchat that user is a member of
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          // get current user
+          const currentUser = firebase.auth().currentUser;
+
+          // get access to database
+          var db = firebase.firestore();
+
+          // Listen for changes in the group chats collection
+          db.collection("group_chats").onSnapshot((snapshot) => {
+            document.getElementById("groupChatList").innerHTML = ""; // Clear the existing content
+            snapshot.forEach((doc) => {
+              var groupChat = doc.data();
+              var groupChatId = doc.id;
+
+              if (groupChat.groupMembers.includes(currentUser.uid)) {
+                var groupChatElement = createGroupChatElement(
+                  groupChat,
+                  groupChatId
+                );
+                document
+                  .getElementById("groupChatList")
+                  .appendChild(groupChatElement);
+              }
+            });
+          });
+        } else {
+          console.log("User is not signed in.");
         }
-
-        // list every groupchat that user is a member of
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                // get current user
-                const currentUser = firebase.auth().currentUser;
-        
-                // get access to database
-                var db = firebase.firestore();
-        
-                // Listen for changes in the group chats collection
-                db.collection("group_chats").onSnapshot((snapshot) => {
-                    document.getElementById("groupChatList").innerHTML = ""; // Clear the existing content
-                    snapshot.forEach((doc) => {
-                        var groupChat = doc.data();
-                        var groupChatId = doc.id;
-                        
-                        if (groupChat.groupMembers.includes(currentUser.uid)) {
-                            var groupChatElement = createGroupChatElement(groupChat, groupChatId);
-                            document.getElementById("groupChatList").appendChild(groupChatElement);
-                        }
-                    });
-                });
-        
-            } else {
-                console.log("User is not signed in.");
-            }
-        });
-
+      });
     </script>
-
-</body>
+  </body>
 </html>
 {% endblock %}
