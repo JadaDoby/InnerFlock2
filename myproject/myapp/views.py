@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse
 from .decorators import firebase_login_required  # Import your custom decorator
+import time
 
 # Assuming you have access to the Firebase UID and the Django user instance
 def save_user_profile(user, firebase_uid):
@@ -86,26 +87,33 @@ def verify_token(request):
     """
     data = json.loads(request.body)
     id_token = data.get('token')
-    try:
-        decoded_token = firebase_auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
-        
-         # Extract user information
-        email = decoded_token.get('email')
-        username = decoded_token.get('name', 'default_username')
-        school = 'default_school'  
-        
-        # Authenticate the user using your custom backend
-        user = authenticate(request, uid=uid)
-        if user:
-            login(request, user)
-            return JsonResponse({'success': True})
-        else:
-            return JsonResponse({'success': False, 'message': 'User does not exist or is inactive'})
-    except Exception as e:
-        # Log the error for debugging
-        print(e)
-        return JsonResponse({'success': False, 'message': 'Failed to authenticate'})
+    
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        try:
+            decoded_token = firebase_auth.verify_id_token(id_token)
+            uid = decoded_token['uid']
+            
+            # Extract user information
+            email = decoded_token.get('email')
+            username = decoded_token.get('name', 'default_username')
+            school = 'default_school'  
+            
+            # Authenticate the user using your custom backend
+            user = authenticate(request, uid=uid)
+            if user:
+                login(request, user)
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'message': 'User does not exist or is inactive'})
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Attempt {attempt + 1}: {e}")
+            if "Token used too early" in str(e) and attempt < max_attempts - 1:
+                time.sleep(1)
+            else:
+                print(e)
+                return JsonResponse({'success': False, 'message': 'Failed to authenticate'})
 
 def search(request):
     return render(request, 'myapp/search.html', {})
@@ -144,7 +152,6 @@ def profile(request):
         firestore_data = {}
                                                           
     return render(request, 'myapp/profile.html', {'user_profile_data': firestore_data})
-    return HttpResponse("This is the protected profile page.")
 
 def privatechat(request):
     return render(request, 'myapp/privatechat.html', {})
