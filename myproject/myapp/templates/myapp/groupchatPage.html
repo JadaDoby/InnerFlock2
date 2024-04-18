@@ -58,7 +58,6 @@
         // list every groupchat that user is a member of
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                // User is signed in, you can access user information here
                 // get current user
                 const currentUser = firebase.auth().currentUser;
         
@@ -80,8 +79,6 @@
                 });
         
             } else {
-                // User is signed out or has not yet signed in
-                // You can handle this case as per your application's requirements
                 console.log("User is not signed in.");
             }
         });

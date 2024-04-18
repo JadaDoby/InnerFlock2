@@ -11,7 +11,7 @@
       type="text/css"
       href="{% static 'myapp/css/styles.css' %}"
     />
-    <!-- Add your styles here -->
+
   </head>
   <body>
     <header>
@@ -87,7 +87,7 @@
             // User creation successful.
             const uid = userCredential.user.uid; // Get the unique user ID from the user credential
 
-            // Now, add a document to Firestore with the additional user information.
+            //add a document to Firestore with the additional user information.
             firebase
               .firestore()
               .collection("users")
@@ -96,7 +96,7 @@
                 email: email,
                 username: username,
                 school: school,
-                role: role, // Include the selected role in Firestore document
+                role: role, 
               })
               .then(() => {
                 console.log("Firestore document successfully written!");
@@ -107,7 +107,7 @@
               });
           })
           .catch((error) => {
-            // Handle sign-up errors here.
+            // Handle sign-up errors
             const errorCode = error.code;
             const errorMessage = error.message;
             document.getElementById("error-message").textContent = errorMessage;
