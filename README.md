@@ -1,7 +1,8 @@
 # InnerFlock2
- # Description:  We developed a chat application that enables hiring managers to create a large group chat to help create better relationships with potential students who are considering joining the workforce soon. This will make it easier for them to share their updates, invite them to events, and share humorous memes or longer videos with everyone in the group. Sharing things with others through group messages is only sometimes feasible due to space constraints or low-quality media. Our desktop app aims to provide a platform for people to share their interests in the professional realm without any limitations. 
 
-#Details regarding user interface:
+ Description:  We developed a chat application that enables hiring managers to create a large group chat to help create better relationships with potential students who are considering joining the workforce soon. This will make it easier for them to share their updates, invite them to events, and share humorous memes or longer videos with everyone in the group. Sharing things with others through group messages is only sometimes feasible due to space constraints or low-quality media. Our desktop app aims to provide a platform for people to share their interests in the professional realm without any limitations. 
+
+Details regarding user interface:
  In the admin interface, you can edit the group chats and create and edit them.
 In the hiring manager interface, you can only create and delete group chats and join existing chats.
 In the student interface, you can only join chats.
@@ -68,8 +69,7 @@ urllib3==2.2.1
 virtualenv==20.25.0
 Werkzeug==3.0.1
 
-#List of other resources
-We used Cloud  Firestore as our database
+#List of other resources - We used Cloud  Firestore as our database
 # The separation of the work
 Jada: Did the basic setup of the initial of all the HTML templates, Created the chats application, Did the database that nested the group chat to the message in the chats, Did the signup page, and Did the set-up of the environment with Jasmine.  Helped with models, forms, and URLs, py, and views.
 Sabrina: I set up Firebase, role-based access for students, hiring managers, and admin. I added the buttons Student and Hiring manager to the signup page. I created the buttons and functionalities Create Chat and Delete Chat, which only Hiring managers and admin can access. I then created an Edit button for Admin.
@@ -79,4 +79,3 @@ Jasmine: Did the Firebase authentication, logout functionality, and registration
   ## To run 
   cd myproject
   python manage.py runserver
-
